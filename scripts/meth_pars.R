@@ -13,7 +13,7 @@ pb <- dplyr::bind_rows(
     expand.grid(
         stringsAsFactors = FALSE,
         assay = "counts", fun = "sum", scale = FALSE, 
-        method = c("dreamlet"),
+        method = c("dreamlet", "DEseq2"),
         treat = c(FALSE)),
     expand.grid(
         stringsAsFactors = FALSE, scale = FALSE,

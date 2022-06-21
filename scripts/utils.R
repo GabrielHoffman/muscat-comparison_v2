@@ -10,7 +10,7 @@ names(.cat_cols) <- c("ee", "ep", "de", "dp", "dm", "db")
     
     "dreamlet.sum.counts" = "red",
 
-    #"DESeq2.sum.counts" = "purple",
+    "DESeq2.sum.counts" = "purple",
     
     "scDD.logcounts"    = "#0056B2",
     "scDD.vstresiduals" = "#009EF6", 
