@@ -7,7 +7,7 @@ pb <- dplyr::bind_rows(
     expand.grid(
         stringsAsFactors = FALSE,
         assay = "counts", fun = "sum", scale = FALSE, 
-        method = c("edgeR", "limma-voom", "DESeq2"),
+        method = c("edgeR", "limma-voom"),
         treat = c(FALSE, TRUE)
     ),
     expand.grid(
