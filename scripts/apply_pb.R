@@ -36,26 +36,6 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
                 tab2$p_adj.loc[idx] = p.adjust(tab2$p_val[idx], "BH")
             }
             res = tab2    
-        }else if( pars$method == "DESeq2" ){
-            library(DESeq2)
-
-            res = lapply(assayNames(pb), function(CT){
-                dds = DESeqDataSetFromMatrix( assay(pb, 1), colData(pb), ~ group_id)
-                dds = DESeq(dds)
-                res = results(dds)
-
-                data.frame(gene = rownames(res),
-                    cluster_id = CT,
-                    logFC = res$log2FoldChange,
-                    AveExpr = res$baseMean, 
-                    t = res$stat, 
-                    p_val = res$pvalue, 
-                    p_adj.loc = p.adjust(res$pvalue, "BH"),
-                    contrast='B')
-            })
-            res = do.call(rbind, res)
-            res$p_adj.glb = p.adjust(res$p_val, "BH")
-
         }else{
             res <- tryCatch(
                 do.call(pbDS, c(
