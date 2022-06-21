@@ -8,7 +8,7 @@ pb <- dplyr::bind_rows(
         stringsAsFactors = FALSE,
         assay = "counts", fun = "sum", scale = FALSE, 
         method = c("edgeR", "limma-voom"),
-        treat = c(FALSE, TRUE)
+        treat = FALSE
     ),
     expand.grid(
         stringsAsFactors = FALSE,
@@ -23,7 +23,7 @@ pb <- dplyr::bind_rows(
     data.frame(
         stringsAsFactors = FALSE, scale = TRUE,
         assay = "cpm", fun = "sum", method = "edgeR",
-        treat = c(FALSE, TRUE)
+        treat = FALSE
     )    
 )
 pb$treat[is.na(pb$treat)] <- FALSE
