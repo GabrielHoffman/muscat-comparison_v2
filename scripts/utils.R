@@ -8,6 +8,10 @@ names(.cat_cols) <- c("ee", "ep", "de", "dp", "dm", "db")
     "edgeR.sum.counts" = "#000000",
     "edgeR.sum.scalecpm" = "#C6C6C6",
     
+    "dreamlet.sum.counts" = "red",
+
+    "DESeq2.sum.counts" = "purple",
+    
     "scDD.logcounts"    = "#0056B2",
     "scDD.vstresiduals" = "#009EF6", 
     
