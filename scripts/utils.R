@@ -19,17 +19,17 @@ names(.cat_cols) <- c("ee", "ep", "de", "dp", "dm", "db")
     "limma-trend.mean.logcounts"    = "#45BF55",
     "limma-trend.mean.vstresiduals" = "#B5E655",
     
-    "MAST.logcounts"    = "#FFC300",
+    "MAST.logcounts"    = "#FFC300")
     
-    "MM-dream"  = "#005E5C",
-    "MM-dream2" = "#00ABA6",
-    "MM-nbinom" = "#00E3DD",
-    "MM-vst"    = "#95EEE8",
+#     "MM-dream"  = "#005E5C",
+#     "MM-dream2" = "#00ABA6",
+#     "MM-nbinom" = "#00E3DD",
+#     "MM-vst"    = "#95EEE8",
     
-    "AD-gid.logcounts"    = "#9A41B3",
-    "AD-gid.vstresiduals" = "#FFA9FF",
-    "AD-sid.logcounts"    = "#E56D4B",
-    "AD-sid.vstresiduals" = "#FBB6A2")
+#     "AD-gid.logcounts"    = "#9A41B3",
+#     "AD-gid.vstresiduals" = "#FFA9FF",
+#     "AD-sid.logcounts"    = "#E56D4B",
+#     "AD-sid.vstresiduals" = "#FBB6A2")
 
 #cols <- .meth_cols
 #hist(seq_along(cols), breaks = c(seq_along(cols) - 0.5, length(cols) + 0.5), col = cols)
