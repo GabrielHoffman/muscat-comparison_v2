@@ -14,7 +14,8 @@ sim <- simData(sce,
     ng = nrow(sce), 
     nc = ncol(sce), 
     p_dd = diag(6)[1, ], 
-    probs = list(NULL, NULL, c(1, 0)))
+    probs = list(NULL, NULL, c(1, 0)),
+    force=TRUE)
 
 dds_sim <- DESeqDataSetFromMatrix(
     countData = counts(sim),
