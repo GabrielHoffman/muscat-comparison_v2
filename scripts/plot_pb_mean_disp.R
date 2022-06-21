@@ -12,7 +12,8 @@ sce <- readRDS(args$sce)
 
 nk <- ns <- 4
 sim <- simData(sce, nk = nk, ns = ns,
-    nc = 2*nk*ns*200, ng = nrow(sce))
+    nc = 2*nk*ns*200, ng = nrow(sce),
+    force=TRUE)
 
 pbs <- list(
     reference = aggregateData(sce),
