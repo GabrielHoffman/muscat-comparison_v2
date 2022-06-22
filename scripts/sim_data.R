@@ -12,6 +12,9 @@ sce <- readRDS(args$sce)
 sim_pars <- fromJSON(args$sim_pars)
 set.seed(sim_pars$seed + as.numeric(wcs$i))
 
+assignInNamespace( ".check_args_simData", function(u)
+    return(list(nk = u$nk, ns = u$ns)), ns="muscat")
+
 sim <- simData(sce, 
     paired = FALSE, lfc = .1,
     ng = nrow(sce), nc = sim_pars$nc,
