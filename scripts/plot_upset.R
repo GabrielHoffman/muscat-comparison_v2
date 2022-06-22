@@ -18,7 +18,8 @@ n_dd <- res %>%
     acast(sid ~ i, value.var = "n_dd")
 
 # get gene-cluster combinations by method at FDR 5%
-top <- group_by(res, sid, i) %>% do(
+top <- group_by(res, sid, i) %>% 
+        filter(!is.na(mid)) %>% do(
     dplyr::filter(., p_adj.loc < 0.05) %>% 
         dplyr::arrange(p_val) %>% 
         group_by(mid, add = TRUE) %>%
