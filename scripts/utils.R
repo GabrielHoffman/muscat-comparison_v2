@@ -6,7 +6,7 @@ names(.cat_cols) <- c("ee", "ep", "de", "dp", "dm", "db")
 
 .meth_cols <- c(
     "edgeR.sum.counts" = "#000000",
-    #"edgeR.sum.scalecpm" = "#C6C6C6",
+    "edgeR.sum.scalecpm" = "#C6C6C6",
     
     "dreamlet.sum.counts" = "red",
 
@@ -16,8 +16,8 @@ names(.cat_cols) <- c("ee", "ep", "de", "dp", "dm", "db")
     #"scDD.vstresiduals" = "#009EF6", 
     
     "limma-voom.sum.counts" = "#009262",
-    #"limma-trend.mean.logcounts"    = "#45BF55",
-    #"limma-trend.mean.vstresiduals" = "#B5E655",
+    "limma-trend.mean.logcounts"    = "#45BF55",
+    "limma-trend.mean.vstresiduals" = "#B5E655",
     
     "MAST.logcounts"    = "#FFC300")
     
