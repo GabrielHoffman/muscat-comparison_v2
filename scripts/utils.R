@@ -4,22 +4,30 @@
 .cat_cols <- c("royalblue", "cornflowerblue", "red3", "tomato", "orange", "gold")
 names(.cat_cols) <- c("ee", "ep", "de", "dp", "dm", "db")
 
-.meth_cols <- c(
-    "edgeR.sum.counts" = "#000000",
-    "edgeR.sum.scalecpm" = "#C6C6C6",
-    
-    "dreamlet.sum.counts" = "red",
+# colors = c(dreamlet = "#E41A1C", 
+#       'limma-voom' = "#377EB8", 
+#       edgeR = "#4DAF4A", 
+#       DESeq2 = "#984EA3", 
+#       glmer = "#FF7F00", 
+#       MAST = "#f2e718")
 
-    "DESeq2.sum.counts" = "purple",
+
+.meth_cols <- c(
+    "edgeR.sum.counts" = "#4DAF4A",
+    "edgeR.sum.scalecpm" = "#32872f",
+    
+    "dreamlet.sum.counts" = "#E41A1C",
+
+    "DESeq2.sum.counts" = "#984EA3",
     
     #"scDD.logcounts"    = "#0056B2",
     #"scDD.vstresiduals" = "#009EF6", 
     
-    "limma-voom.sum.counts" = "#009262",
-    "limma-trend.mean.logcounts"    = "#45BF55",
-    "limma-trend.mean.vstresiduals" = "#B5E655",
+    "limma-voom.sum.counts" = "#377EB8",
+    "limma-trend.mean.logcounts"    = "#285e8a",
+    "limma-trend.mean.vstresiduals" = "#5884a8",
     
-    "MAST.logcounts"    = "#FFC300")
+    "MAST.logcounts"    = "#ed68b8")
     
 #     "MM-dream"  = "#005E5C",
 #     "MM-dream2" = "#00ABA6",
