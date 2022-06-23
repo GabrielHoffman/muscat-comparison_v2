@@ -51,7 +51,7 @@ fig = df %>%
         theme_classic() +
         theme(aspect.ratio=1) + 
         scale_y_continuous(limits=c(0,1), expand=c(0,0))  + 
-        ylab("Correlation between true and estimated values") + 
+        ylab("Correlation between true and estimated logFC") + 
         xlab("Method") + 
         scale_fill_manual(values = .meth_cols) +
         coord_flip() 
