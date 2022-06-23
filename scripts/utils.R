@@ -24,8 +24,8 @@ names(.cat_cols) <- c("ee", "ep", "de", "dp", "dm", "db")
     #"scDD.vstresiduals" = "#009EF6", 
     
     "limma-voom.sum.counts" = "#377EB8",
-    "limma-trend.mean.logcounts"    = "#285e8a",
-    "limma-trend.mean.vstresiduals" = "#5884a8",
+    "limma-trend.mean.logcounts"    = "#95bcdb",
+    "limma-trend.mean.vstresiduals" = "#377EB8",
     
     "MAST.logcounts"    = "#ed68b8")
     
