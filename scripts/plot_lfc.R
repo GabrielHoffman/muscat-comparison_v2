@@ -58,6 +58,6 @@ fig = df %>%
 
 file = gsub(".pdf", "_cor.pdf", args$fig)
 
-ggsave(file=, fig,
+ggsave(file=file, fig,
     width = 30, height = 8, units = "cm",
     dpi = 300, useDingbats = FALSE)
