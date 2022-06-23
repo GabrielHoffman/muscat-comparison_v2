@@ -40,3 +40,24 @@ ggsave(args$fig, p,
     width = 15, height = 10, units = "cm",
     dpi = 300, useDingbats = FALSE)
 
+
+# correlation by group
+fig = df %>% 
+    group_by(mid, sid) %>% 
+    summarize(cor = cor(sim_lfc, est_lfc)) %>% 
+    ggplot(aes(mid, cor, fill=mid)) +
+        geom_bar(stat="identity") + 
+        facet_grid(~ sid)  + 
+        theme_classic() +
+        theme(aspect.ratio=1) + 
+        scale_y_continuous(limits=c(0,1), expand=c(0,0))  + 
+        ylab("Correlation between true and estimated values") + 
+        xlab("Method") + 
+        scale_fill_manual(values = .meth_cols) +
+        coord_flip() 
+
+file = gsub(".pdf", "_cor.pdf", args$fig)
+
+ggsave(file=, fig,
+    width = 30, height = 8, units = "cm",
+    dpi = 300, useDingbats = FALSE)
