@@ -14,7 +14,7 @@ names(.cat_cols) <- c("ee", "ep", "de", "dp", "dm", "db")
 
 .meth_cols <- c(
     "edgeR.sum.counts" = "#4DAF4A",
-    "edgeR.sum.scalecpm" = "#32872f",
+    "edgeR.sum.scalecpm" = "#9cf099",
     
     "dreamlet.sum.counts" = "#E41A1C",
 
