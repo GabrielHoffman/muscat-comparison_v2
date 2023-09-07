@@ -49,8 +49,8 @@ fig = df %>%
         geom_bar(stat="identity") + 
         facet_grid(~ sid)  + 
         theme_classic() +
-        theme(aspect.ratio=1) + 
-        scale_y_continuous(limits=c(0,1), expand=c(0,0))  + 
+        theme(aspect.ratio=1, legend.position="none") + 
+        scale_y_continuous(limits=c(0,1), expand=c(0,0), breaks = c(0, 0.25, 0.5, 0.75, 1), labels= c('0', '0.25', '0.5', '0.75', '1'))  + 
         ylab("Correlation between true and estimated logFC") + 
         xlab("Method") + 
         scale_fill_manual(values = .meth_cols) +
@@ -61,3 +61,7 @@ file = gsub(".pdf", "_cor.pdf", args$fig)
 ggsave(file=file, fig,
     width = 30, height = 8, units = "cm",
     dpi = 300, useDingbats = FALSE)
+
+
+
+
