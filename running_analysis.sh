@@ -1,5 +1,7 @@
 
-cd /sc/arion/projects/CommonMind/hoffman/muscat-comparison
+
+cd /sc/arion/projects/CommonMind/hoffman/muscat-comparison_v2/
+ml python gcc/11.2.0
 
 # clear results
 # rm -f plots/* results/* logs/* meta/sim_pars/* data/sim_data/*
@@ -14,7 +16,9 @@ snakemake -j1 --rerun-incomplete
 # https://hoffmg01.u.hpc.mssm.edu/muscat-comparison/
 
 
-snakemake --jobs 500 --cluster 'bsub -q premium -R "rusage[mem=16000]" -R span[hosts=1] -W 6:00 -P acc_CommonMind -n 2' 
+
+snakemake  --rerun-incomplete --jobs 200 --cluster 'bsub -q premium -R "rusage[mem=6000]" -R span[hosts=1] -W 22:00 -P acc_CommonMind -n 6'
+
 
 
 snakemake --rerun-incomplete --jobs 500 --cluster 'bsub -q premium -R "rusage[mem=16000]" -R span[hosts=1] -W 6:00 -P acc_CommonMind -n 2' 
