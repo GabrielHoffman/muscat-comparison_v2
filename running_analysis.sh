@@ -14,7 +14,6 @@ snakemake -j1 --rerun-incomplete
 # https://hoffmg01.u.hpc.mssm.edu/muscat-comparison/
 
 
-
 snakemake --jobs 500 --cluster 'bsub -q premium -R "rusage[mem=16000]" -R span[hosts=1] -W 6:00 -P acc_CommonMind -n 2' 
 
 
