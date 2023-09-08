@@ -70,6 +70,8 @@ df <- map(perf, "fdrtpr") %>%
 p <- .plot_perf_points(df)
 p$facet$params$ncol <- nlevels(df$splitval)
 
+save(list=ls(), file="by_nc.RDATA")
+
 saveRDS(p, args$ggp)
 ggsave(args$fig, p,
     width = 15, height = 6, units = "cm",
