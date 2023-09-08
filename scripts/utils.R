@@ -14,6 +14,7 @@ names(.cat_cols) <- c("ee", "ep", "de", "dp", "dm", "db")
 
 .meth_cols <- rev(c(    
     "dreamlet.sum.counts" = "#E41A1C",
+    # "dreamlet_no_cell_weights.sum.counts" = "#e41a6b",
 
     "limma-voom.sum.counts" = "#377EB8",
     "limma-trend.mean.logcounts"    = "#95bcdb",
