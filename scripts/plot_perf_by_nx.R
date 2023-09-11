@@ -72,6 +72,27 @@ p$facet$params$ncol <- nlevels(df$splitval)
 
 save(list=ls(), file="by_nc.RDATA")
 
+# plot gene counts
+# library(tidyverse)
+# res[[1]][[1]] %>%
+#     group_by(method, thr, splitval) %>%
+#     summarize(ngenes = nrow(.)) %>%
+#     print(n=1000)
+
+# do.call(rbind, res[[10]]) %>%
+#     group_by(mid, c) %>%
+#     summarize(ngenes= sum(!is.na(p_val))) %>%
+#     ggplot(aes(as.numeric(as.character(c)), ngenes, color=mid)) +
+#         geom_line() +
+#         geom_point() +
+#         theme_classic() +
+#         theme(aspect.ratio=1) +
+#         scale_x_log10()
+
+
+
+
+
 saveRDS(p, args$ggp)
 ggsave(args$fig, p,
     width = 15, height = 6, units = "cm",
