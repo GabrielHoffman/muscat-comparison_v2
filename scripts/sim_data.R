@@ -5,7 +5,6 @@ suppressMessages({
     library(scater)
     library(sctransform)
     library(SingleCellExperiment) 
-    library(HMP) 
 })
 
 # load data & simulation parameters
@@ -63,7 +62,7 @@ keep = lapply( seq(nrow(df_grid)), function(i){
     keep = which( sim$sample_id == df_grid$sid[i] & sim$cluster_id == df_grid$cid[i])
 
     ncells = countTarget[df_grid$sid[i],df_grid$cid[i]]
-    ncells = max(2, ncells)
+    ncells = max(5, ncells)
 
     if( ncells < length(keep)){
         keep <- sample(keep, ncells)
@@ -75,6 +74,9 @@ keep = sort(unlist(keep))
 # Subsample
 sim2 = sim[,keep]
 
+# filter genes
+sim2 <- sim2[rowSums(counts(sim2) > 0) >= 10, ]
+
 # back to standard processing
 gi <- metadata(sim2)$gene_info 
 gi <- dplyr::filter(gi, gene %in% rownames(sim2))
@@ -83,10 +85,9 @@ metadata(sim2)$gene_info <- gi
 sim2 <- computeLibraryFactors(sim2)
 sim2 <- logNormCounts(sim2)
 assays(sim2)$cpm <- calculateCPM(sim2)
-assays(sim2)$vstresiduals <- suppressWarnings(
-    vst(counts(sim2), show_progress = FALSE)$y)
+
+vst_values <- suppressWarnings(sctransform::vst(counts(sim2))$y)
+
+assays(sim2)$vstresiduals <- vst_values
 
 saveRDS(sim2, args$sim)
-
-
-range(table(sim2$sample_id, sim2$cluster_id))
