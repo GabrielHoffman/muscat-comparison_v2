@@ -70,30 +70,128 @@ df <- map(perf, "fdrtpr") %>%
 p <- .plot_perf_points(df)
 p$facet$params$ncol <- nlevels(df$splitval)
 
-save(list=ls(), file="by_nc.RDATA")
-
-# plot gene counts
-# library(tidyverse)
-# res[[1]][[1]] %>%
-#     group_by(method, thr, splitval) %>%
-#     summarize(ngenes = nrow(.)) %>%
-#     print(n=1000)
-
-# do.call(rbind, res[[10]]) %>%
-#     group_by(mid, c) %>%
-#     summarize(ngenes= sum(!is.na(p_val))) %>%
-#     ggplot(aes(as.numeric(as.character(c)), ngenes, color=mid)) +
-#         geom_line() +
-#         geom_point() +
-#         theme_classic() +
-#         theme(aspect.ratio=1) +
-#         scale_x_log10()
-
-
-
-
 
 saveRDS(p, args$ggp)
 ggsave(args$fig, p,
     width = 15, height = 6, units = "cm",
     dpi = 300, useDingbats = FALSE)
+
+
+
+
+# Precision-Recall curves
+#########################
+
+library(tidyverse)
+
+perf2 <- lapply(cd, calculate_performance, 
+    aspects = "fdrtpr", binary_truth = "is_de", 
+    splv = wcs$x, maxsplit = Inf, thrs=seq(1e-8, 1, length.out=10))
+
+df <- map(perf2, "fdrtpr") %>% 
+    bind_rows(.id = "j") %>%
+    mutate(Precision = TP / (TP+FP),
+        Recall = TP / (TP+FN)) %>%
+    mutate(F1 = 2*Precision*Recall / (Precision + Recall)) %>%
+    dplyr::select(splitval, thr, method, TPR, FDR, Precision, Recall, F1) %>% 
+    dplyr::filter(splitval != "overall") %>%
+    mutate_at("thr", function(u) 
+        as.numeric(gsub("thr", "", u))) %>%  
+    mutate_at("splitval", function(u) {
+        u <- gsub(paste0(wcs$x, ":"), "", u)
+        v <- sort(unique(as.numeric(u)))
+        factor(u, levels = v)
+    }) %>% 
+    group_by(splitval, thr, method) %>% 
+    summarise_at(c("FDR", "TPR", "Precision", "Recall", "F1"), mean) %>% 
+    mutate_at("method", factor, levels = names(.meth_cols))
+
+plot_PR = function(df,
+    include = "all", color_by = "method", facet = "splitval") {
+    df <- filter(ungroup(df), TPR + FDR != 0)
+    df$treat <- grepl("treat", df$method)
+    if (any(rmv <- table(df$splitval) < 2))
+        df <- filter(df, !splitval %in% levels(df$splitval)[rmv])
+    df$method <- factor(
+        gsub("-treat", "", df$method),
+        levels = levels(df$method))
+    p <- ggplot(filter(df, FDR + TPR != 0),
+        aes_string(x = "Recall", y = "Precision", col = color_by)) +
+        facet_wrap(facet, labeller = labeller(.multi_line = FALSE), nrow=1) +
+        # geom_vline(size = 0.2, lty = 2, aes(xintercept = thr)) +
+        # geom_point(size = 1, alpha = 0.8) +
+        geom_line(aes(lty = treat), size = 0.4, alpha = 0.4, show.legend = (include == "treat")) +
+        scale_color_manual(NULL, values = switch(include, treat = .treat_cols, .meth_cols)) +
+        scale_x_continuous(limits = c(0, 1), breaks = seq(0, 1, 0.2), expand = c(0, 0.05)) +
+        scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, 0.2), expand = c(0, 0.05)) +
+        .prettify(theme = "bw", legend.position = "bottom", legend.box.just = "center") +
+        guides(
+            lty = guide_legend(ncol = 1, keywidth = unit(4, "mm"),
+                override.aes = list(alpha = 1, lty = c(1, 3))),
+            col = guide_legend(order = 1, nrow = 4,
+                override.aes = list(alpha = 1, size = 2)))
+    suppressWarnings(suppressMessages(p))
+}
+
+
+p <- plot_PR(df)
+
+file = gsub("\\.pdf", "\\_PR.pdf", args$fig)
+
+ggsave(file = file, p,
+    width = 15, height = 6, units = "cm",
+    dpi = 300, useDingbats = FALSE)
+
+
+
+# Max F1 score
+##############
+
+plot_maxF1 = function(df,
+    include = "all", color_by = "method", facet = "splitval") {
+    df <- filter(ungroup(df), TPR + FDR != 0)
+    df$treat <- grepl("treat", df$method)
+    if (any(rmv <- table(df$splitval) < 2))
+        df <- filter(df, !splitval %in% levels(df$splitval)[rmv])
+    df$method <- factor(
+        gsub("-treat", "", df$method),
+        levels = levels(df$method))
+
+    p <- df %>% 
+        filter(FDR + TPR != 0) %>%
+        group_by(splitval, method) %>%
+        summarize(F1max = max(F1, na.rm=TRUE)) %>%
+        ggplot(aes_string("method", "F1max", fill = color_by)) +
+            geom_bar(stat="identity") +
+            scale_color_manual(NULL, values = switch(include, treat = .treat_cols, .meth_cols)) +
+            facet_wrap(facet, labeller = labeller(.multi_line = FALSE), nrow=1) +
+            scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, 0.2), expand = c(0, 0)) +
+            scale_fill_manual(NULL, values = switch(include, treat = .treat_cols, .meth_cols)) +
+            .prettify(theme = "bw", legend.position = "bottom", legend.box.just = "center", axis.text.x=element_blank(), axis.ticks.x=element_blank()) +
+            guides(
+                lty = guide_legend(ncol = 1, keywidth = unit(4, "mm"),
+                    override.aes = list(alpha = 1, lty = c(1, 3))),
+                col = guide_legend(order = 1, nrow = 4,
+                    override.aes = list(alpha = 1, size = 2)))
+
+    suppressWarnings(suppressMessages(p))
+}
+
+
+p2 <- plot_maxF1(df)
+
+
+
+file = gsub("\\.pdf", "\\_F1max.pdf", args$fig)
+
+ggsave(file = file, p2,
+    width = 15, height = 6, units = "cm",
+    dpi = 300, useDingbats = FALSE)
+
+
+
+
+
+
+
+
