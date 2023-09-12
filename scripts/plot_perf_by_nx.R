@@ -120,7 +120,7 @@ plot_PR = function(df,
         facet_wrap(facet, labeller = labeller(.multi_line = FALSE), nrow=1) +
         # geom_vline(size = 0.2, lty = 2, aes(xintercept = thr)) +
         # geom_point(size = 1, alpha = 0.8) +
-        geom_line(aes(lty = treat), size = 1, alpha = 0.4, show.legend = (include == "treat")) +
+        geom_line(aes(lty = treat), size = 1, alpha = 0.7, show.legend = (include == "treat")) +
         scale_color_manual(NULL, values = switch(include, treat = .treat_cols, .meth_cols)) +
         scale_x_continuous(limits = c(0, 1), breaks = seq(0, 1, 0.2), expand = c(0, 0.05)) +
         scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, 0.2), expand = c(0, 0.05)) +
@@ -138,7 +138,7 @@ p <- plot_PR(df)
 
 file = gsub("\\.pdf", "\\_PR.pdf", args$fig)
 
-ggsave(file = file, p,
+ggsave(file, p,
     width = 15, height = 6, units = "cm",
     dpi = 300, useDingbats = FALSE)
 
@@ -184,7 +184,7 @@ p2 <- plot_maxF1(df)
 
 file = gsub("\\.pdf", "\\_F1max.pdf", args$fig)
 
-ggsave(file = file, p2,
+ggsave(file, p2,
     width = 15, height = 6, units = "cm",
     dpi = 300, useDingbats = FALSE)
 
