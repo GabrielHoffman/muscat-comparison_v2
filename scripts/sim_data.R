@@ -16,9 +16,13 @@ set.seed(sim_pars$seed + as.numeric(wcs$i))
 assignInNamespace( ".check_args_simData", function(u)
     return(list(nk = u$nk, ns = u$ns)), ns="muscat")
 
+# Simulate more cells than needed
+# Then downsample later
+k_scaling = 10
+
 sim <- simData(sce, 
     paired = FALSE, lfc = 0.5,
-    ng = nrow(sce), nc = 10*sim_pars$nc,
+    ng = nrow(sce), nc = k_scaling*sim_pars$nc,
     ns = sim_pars$ns, nk = sim_pars$nk,
     p_dd = sim_pars$p_dd, probs = sim_pars$probs,
     force=TRUE)
@@ -32,9 +36,24 @@ sim <- sim[rowSums(counts(sim) > 0) >= 10, ]
 # using Dirichlet-multinomial
 #############################
 
+rdmn = function(counts, alpha){
+
+    stopifnot(identical(ncol(counts), length(alpha)))
+
+    df = lapply(seq(nrow(counts)), function(i){
+        prob = dirmult::rdirichlet(1, alpha)
+        t(rmultinom(1, counts[i,], prob = prob))
+    })
+    df = do.call(rbind, df)
+    rownames(df) = rownames(counts)
+    colnames(df) = colnames(counts)
+    df
+}
+
+# overdispersion parameter 
 alpha = 2
-tab = table(sim$sample_id, sim$cluster_id)
-countTarget = Dirichlet.multinomial(tab/10, c(alpha, alpha))
+
+countTarget = rdmn(tab/k_scaling*2, c(alpha, alpha))
 
 df_grid = expand.grid(sid = levels(sim$sample_id), 
                         cid = levels(sim$cluster_id))
@@ -44,23 +63,30 @@ keep = lapply( seq(nrow(df_grid)), function(i){
     keep = which( sim$sample_id == df_grid$sid[i] & sim$cluster_id == df_grid$cid[i])
 
     ncells = countTarget[df_grid$sid[i],df_grid$cid[i]]
+    ncells = max(2, ncells)
 
-    sample(keep, ncells)
-    })
+    if( ncells < length(keep)){
+        keep <- sample(keep, ncells)
+    }
+    keep
+})
 keep = sort(unlist(keep))
 
-sim = sim[,keep]
+# Subsample
+sim2 = sim[,keep]
 
 # back to standard processing
-gi <- metadata(sim)$gene_info 
-gi <- dplyr::filter(gi, gene %in% rownames(sim))
-metadata(sim)$gene_info <- gi
+gi <- metadata(sim2)$gene_info 
+gi <- dplyr::filter(gi, gene %in% rownames(sim2))
+metadata(sim2)$gene_info <- gi
 
-sim <- computeLibraryFactors(sim)
-sim <- logNormCounts(sim)
-assays(sim)$cpm <- calculateCPM(sim)
-assays(sim)$vstresiduals <- suppressWarnings(
-    vst(counts(sim), show_progress = FALSE)$y)
+sim2 <- computeLibraryFactors(sim2)
+sim2 <- logNormCounts(sim2)
+assays(sim2)$cpm <- calculateCPM(sim2)
+assays(sim2)$vstresiduals <- suppressWarnings(
+    vst(counts(sim2), show_progress = FALSE)$y)
 
-saveRDS(sim, args$sim)
+saveRDS(sim2, args$sim)
 
+
+range(table(sim2$sample_id, sim2$cluster_id))
