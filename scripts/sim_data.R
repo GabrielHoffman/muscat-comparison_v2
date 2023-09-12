@@ -52,7 +52,7 @@ rdmn = function(counts, alpha){
 }
 
 # overdispersion parameter 
-alpha = 2
+alpha = 1e-1
 
 countTarget = rdmn(tab/k_scaling*2, rep(alpha, ncol(tab)))
 
