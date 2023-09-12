@@ -86,7 +86,7 @@ library(tidyverse)
 
 perf2 <- lapply(cd, calculate_performance, 
     aspects = "fdrtpr", binary_truth = "is_de", 
-    splv = wcs$x, maxsplit = Inf, thrs=seq(1e-8, 1, length.out=10))
+    splv = wcs$x, maxsplit = Inf, thrs=seq(1e-8, 1, length.out=1000))
 
 df <- map(perf2, "fdrtpr") %>% 
     bind_rows(.id = "j") %>%
