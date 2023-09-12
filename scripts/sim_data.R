@@ -31,6 +31,8 @@ sim <- sim[rowSums(counts(sim) > 0) >= 10, ]
 # don't subsample genes
 # sim <- sim[sample(nrow(sim), min(nrow(sim), sim_pars$ng)), ]
 
+tab = table(sim$sample_id, sim$cluster_id)
+
 # Downsample cell to get sim_pars$nc total
 # using Dirichlet-multinomial
 #############################
