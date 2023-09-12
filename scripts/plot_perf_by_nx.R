@@ -120,7 +120,7 @@ plot_PR = function(df,
         facet_wrap(facet, labeller = labeller(.multi_line = FALSE), nrow=1) +
         # geom_vline(size = 0.2, lty = 2, aes(xintercept = thr)) +
         # geom_point(size = 1, alpha = 0.8) +
-        geom_line(aes(lty = treat), size = 0.4, alpha = 0.4, show.legend = (include == "treat")) +
+        geom_line(aes(lty = treat), size = 1, alpha = 0.4, show.legend = (include == "treat")) +
         scale_color_manual(NULL, values = switch(include, treat = .treat_cols, .meth_cols)) +
         scale_x_continuous(limits = c(0, 1), breaks = seq(0, 1, 0.2), expand = c(0, 0.05)) +
         scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, 0.2), expand = c(0, 0.05)) +
