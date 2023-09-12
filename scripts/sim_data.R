@@ -54,7 +54,7 @@ rdmn = function(counts, alpha){
 # overdispersion parameter 
 alpha = 2
 
-countTarget = rdmn(tab/k_scaling*2, c(alpha, alpha))
+countTarget = rdmn(tab/k_scaling*2, rep(alpha, ncol(tab)))
 
 df_grid = expand.grid(sid = levels(sim$sample_id), 
                         cid = levels(sim$cluster_id))
