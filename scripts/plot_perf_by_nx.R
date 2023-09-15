@@ -6,7 +6,7 @@ suppressMessages({
     library(purrr)
 })
 
-# wcs = list(x = "c", did = "magl")
+# wcs = list(x = "s", did = "kang")
 # args <- list(
 #     res = list.files("results", sprintf("%s,de10_n%s,", wcs$did, wcs$x), full.names = TRUE),
 #     ggp = file.path("plots", paste0(wcs$did, sprintf("-perf_by_n%s.rds", wcs$x))),
@@ -84,9 +84,12 @@ ggsave(args$fig, p,
 
 library(tidyverse)
 
+thresholds = c(1e-18, 1e-15, 1e-12, 1e-10, 1e-8, 1e-6, 1e-4, 1e-3)
+thresholds = sort(c(thresholds, seq(5e-3, 1, length.out=500)))
+
 perf2 <- lapply(cd, calculate_performance, 
     aspects = "fdrtpr", binary_truth = "is_de", 
-    splv = wcs$x, maxsplit = Inf, thrs=seq(1e-8, 1, length.out=1000))
+    splv = wcs$x, maxsplit = Inf, thrs=thresholds)
 
 df <- map(perf2, "fdrtpr") %>% 
     bind_rows(.id = "j") %>%
@@ -141,6 +144,41 @@ file = gsub("\\.pdf", "\\_PR.pdf", args$fig)
 ggsave(file, p,
     width = 15, height = 6, units = "cm",
     dpi = 300, useDingbats = FALSE)
+
+# AUPR
+#---------
+
+library(DescTools)
+
+df_aupr = df %>%
+    # filter(splitval==5, method=="limma-voom.sum.counts") %>%
+    mutate(Precision = replace_na(Precision, 1)) %>%
+    select(splitval, method, Precision, Recall) %>%
+    group_by(splitval, method) %>%
+    select(-thr) %>% 
+    unique %>%
+    summarize(AUPR = AUC(Recall, Precision))
+
+plot_AUPR = function(df,
+    include = "all", color_by = "method", facet = "splitval") {
+
+    df_aupr %>% 
+        ggplot(aes_string("method", "AUPR", fill = color_by)) +
+        geom_bar(stat="identity") +
+        scale_color_manual(NULL, values = switch(include, treat = .treat_cols, .meth_cols)) +
+        facet_wrap(facet, labeller = labeller(.multi_line = FALSE), nrow=1) +
+        scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, 0.2), expand = c(0, 0)) +
+        scale_fill_manual(NULL, values = switch(include, treat = .treat_cols, .meth_cols)) +
+        .prettify(theme = "bw", legend.position = "bottom", legend.box.just = "center", axis.text.x=element_blank(), axis.ticks.x=element_blank()) +
+        guides(
+            lty = guide_legend(ncol = 1, keywidth = unit(4, "mm"),
+                override.aes = list(alpha = 1, lty = c(1, 3))),
+            col = guide_legend(order = 1, nrow = 4,
+                override.aes = list(alpha = 1, size = 2)))
+}
+
+plot_AUPR(df_aupr)
+
 
 
 
