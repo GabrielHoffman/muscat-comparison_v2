@@ -177,10 +177,14 @@ plot_AUPR = function(df,
                 override.aes = list(alpha = 1, size = 2)))
 }
 
-plot_AUPR(df_aupr)
 
+p <- plot_AUPR(df_aupr)
 
+file = gsub("\\.pdf", "\\_AUPR.pdf", args$fig)
 
+ggsave(file, p,
+    width = 15, height = 6, units = "cm",
+    dpi = 300, useDingbats = FALSE)
 
 # Max F1 score
 ##############
