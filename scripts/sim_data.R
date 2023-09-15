@@ -29,8 +29,6 @@ sim <- simData(sce,
 sim <- sim[rowSums(counts(sim) > 0) >= 10, ]
 
 # don't subsample genes
-# sim <- sim[sample(nrow(sim), min(nrow(sim), sim_pars$ng)), ]
-
 tab = table(sim$sample_id, sim$cluster_id)
 
 # Downsample cell to get sim_pars$nc total
@@ -51,33 +49,40 @@ rdmn = function(counts, alpha){
     df
 }
 
-# overdispersion parameter 
-alpha = 1e-1
+if( k_scaling > 1){
+    # overdispersion parameter 
+    alpha = 1e-1
 
-countTarget = rdmn(tab/k_scaling*2, rep(alpha, ncol(tab)))
+    countTarget = rdmn(tab/k_scaling*2, rep(alpha, ncol(tab)))
 
-df_grid = expand.grid(sid = levels(sim$sample_id), 
-                        cid = levels(sim$cluster_id))
+    df_grid = expand.grid(sid = levels(sim$sample_id), 
+                            cid = levels(sim$cluster_id))
 
-keep = lapply( seq(nrow(df_grid)), function(i){
+    keep = lapply( seq(nrow(df_grid)), function(i){
 
-    keep = which( sim$sample_id == df_grid$sid[i] & sim$cluster_id == df_grid$cid[i])
+        keep = which( sim$sample_id == df_grid$sid[i] & sim$cluster_id == df_grid$cid[i])
 
-    ncells = countTarget[df_grid$sid[i],df_grid$cid[i]]
-    ncells = max(5, ncells)
+        ncells = countTarget[df_grid$sid[i],df_grid$cid[i]]
+        ncells = max(5, ncells)
 
-    if( ncells < length(keep)){
-        keep <- sample(keep, ncells)
-    }
-    keep
-})
-keep = sort(unlist(keep))
+        if( ncells < length(keep)){
+            keep <- sample(keep, ncells)
+        }
+        keep
+    })
+    keep = sort(unlist(keep))
 
-# Subsample
-sim2 = sim[,keep]
+    # Subsample
+    sim2 = sim[,keep]
 
-# filter genes
-sim2 <- sim2[rowSums(counts(sim2) > 0) >= 10, ]
+    # filter genes
+    sim2 <- sim2[rowSums(counts(sim2) > 0) >= 10, ]
+}else{
+    sim2 = sim
+}
+
+# Subsample genes 
+sim2 <- sim2[sample(nrow(sim2), min(nrow(sim2), sim_pars$ng)), ]
 
 # back to standard processing
 gi <- metadata(sim2)$gene_info 
