@@ -17,7 +17,7 @@ assignInNamespace( ".check_args_simData", function(u)
 
 # Simulate more cells than needed
 # Then downsample later
-k_scaling = 1
+k_scaling = 10
 
 sim <- simData(sce, 
     paired = FALSE, lfc = 0.5,
@@ -51,7 +51,7 @@ rdmn = function(counts, alpha){
 
 if( k_scaling > 1){
     # overdispersion parameter 
-    alpha = 1e-1
+    alpha = 1e8
 
     countTarget = rdmn(tab/k_scaling*2, rep(alpha, ncol(tab)))
 
@@ -75,8 +75,12 @@ if( k_scaling > 1){
     # Subsample
     sim2 = sim[,keep]
 
+    # rename cells
+    colnames(sim2) = paste0("cell", seq(ncol(sim2)))
+
     # filter genes
     sim2 <- sim2[rowSums(counts(sim2) > 0) >= 10, ]
+
 }else{
     sim2 = sim
 }
