@@ -51,7 +51,7 @@ rdmn = function(counts, alpha){
 
 if( k_scaling > 1){
     # overdispersion parameter 
-    alpha = 1e5
+    alpha = 100
 
     countTarget = rdmn(tab/k_scaling*2, rep(alpha, ncol(tab)))
 
@@ -80,6 +80,10 @@ if( k_scaling > 1){
 
     # filter genes
     sim2 <- sim2[rowSums(counts(sim2) > 0) >= 10, ]
+
+    # set number of cells
+    metadata(sim2)$n_cells = table(sim2$sample_id)
+    metadata(sim)$args$nc = sim_pars$nc
 
 }else{
     sim2 = sim
