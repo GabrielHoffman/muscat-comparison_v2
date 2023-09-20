@@ -83,7 +83,7 @@ if( k_scaling > 1){
 
     # set number of cells
     metadata(sim2)$n_cells = table(sim2$sample_id)
-    metadata(sim)$args$nc = sim_pars$nc
+    metadata(sim2)$args$nc = sim_pars$nc
 
 }else{
     sim2 = sim

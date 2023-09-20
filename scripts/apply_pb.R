@@ -26,7 +26,7 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
 
             vobj <- processAssays(pb, ~ 1, verbose=FALSE, min.count=3)
             fit <- dreamlet(vobj, ~ group_id, verbose=FALSE )
-            tab <- topTable(fit, coef='group_idB', number=Inf)
+            tab <- topTable(fit, coef='group_idB', number=Inf, sort.by="none")
 
             tab2 = with(tab, data.frame(gene = ID, cluster_id = assay, logFC, AveExpr, t, p_val=P.Value, B, contrast='B'))
 
@@ -50,3 +50,13 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
     })[[3]]
     list(rt = c(t1, t2), tbl = res)
 }
+
+
+# df = tab %>%
+#         as_tibble %>%
+#         mutate(cluster_id = assay, gene = ID) %>%
+#         left_join(metadata(sce)$gene_info, by=c("cluster_id", "gene")) %>%
+#         filter(category != "ee")
+
+
+# hist(df$P.Value)
