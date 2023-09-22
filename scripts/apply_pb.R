@@ -18,13 +18,15 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
         pb <- aggregateData(sce, a, fun = pars$fun, scale = pars$scale)
     })[[3]]
     t2 <- system.time({
-        if( pars$method == "dreamlet" ){
+        if( pars$method %in% c("dreamlet", "dreamlet_no_cell_weights") ){
+
+            useCountsWeights = ifelse(pars$method == "dreamlet", TRUE, FALSE)
 
             library(dreamlet)
             # use dreamlet pseudobulk command here
             pb <- aggregateToPseudoBulk(sce, a, fun = pars$fun, scale = pars$scale, cluster_id = "cluster_id",sample_id = "sample_id")
 
-            vobj <- processAssays(pb, ~ 1, verbose=FALSE, min.count=3)
+            vobj <- processAssays(pb, ~ 1, verbose=FALSE, min.count=3, useCountsWeights=useCountsWeights)
             fit <- dreamlet(vobj, ~ group_id, verbose=FALSE )
             tab <- topTable(fit, coef='group_idB', number=Inf, sort.by="none")
 
