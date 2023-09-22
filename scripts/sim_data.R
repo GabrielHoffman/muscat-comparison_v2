@@ -26,35 +26,12 @@ sim <- simData(sce,
     p_dd = sim_pars$p_dd, probs = sim_pars$probs,
     force=TRUE)
 
-sim <- sim[rowSums(counts(sim) > 0) >= 10, ]
-
 # don't subsample genes
 tab = table(sim$sample_id, sim$cluster_id)
 
-# Downsample cell to get sim_pars$nc total
-# using Dirichlet-multinomial
-#############################
-
-rdmn = function(counts, alpha){
-
-    stopifnot(identical(ncol(counts), length(alpha)))
-
-    df = lapply(seq(nrow(counts)), function(i){
-        prob = dirmult::rdirichlet(1, alpha)
-        t(rmultinom(1, counts[i,], prob = prob))
-    })
-    df = do.call(rbind, df)
-    rownames(df) = rownames(counts)
-    colnames(df) = colnames(counts)
-    df
-}
+sim <- sim[rowSums(counts(sim) > 0) >= 10, ]
 
 if( k_scaling > 1){
-    # overdispersion parameter 
-    alpha = 20
-
-    countTarget = rdmn(tab/k_scaling*2, rep(alpha, ncol(tab)))
-
     df_grid = expand.grid(sid = levels(sim$sample_id), 
                             cid = levels(sim$cluster_id))
 
@@ -62,8 +39,13 @@ if( k_scaling > 1){
 
         keep = which( sim$sample_id == df_grid$sid[i] & sim$cluster_id == df_grid$cid[i])
 
-        ncells = countTarget[df_grid$sid[i],df_grid$cid[i]]
-        ncells = max(5, ncells)
+        target = tab[df_grid$sid[i],df_grid$cid[i]]/k_scaling
+
+        # sample cell counts from Negative Binomial 
+        # Poisson if theta = mu^2
+        ncells = MASS::rnegbin(1, mu=target, theta=sqrt(target)/2)
+         
+        # ncells = max(5, ncells)
 
         if( ncells < length(keep)){
             keep <- sample(keep, ncells)
@@ -106,3 +88,41 @@ vst_values <- suppressWarnings(sctransform::vst(counts(sim2))$y)
 assays(sim2)$vstresiduals <- vst_values
 
 saveRDS(sim2, args$sim)
+
+
+
+
+# # test sampling
+# with(colData(sim2), xtabs(~sample_id + cluster_id))
+
+
+# library(dreamlet)
+# # use dreamlet pseudobulk command here
+# pb <- aggregateToPseudoBulk(sim2, cluster_id = "cluster_id",sample_id = "sample_id")
+
+# vobj <- processAssays(pb, ~ 1, verbose=FALSE, min.count=3, useCountsWeights=TRUE)
+# # plotVoom(vobj)
+# fit <- dreamlet(vobj, ~ group_id, verbose=FALSE )
+
+# topTable(fit, coef='group_idB', number=Inf, sort.by="none") %>%
+#         as_tibble %>%
+#         mutate(cluster_id = assay, gene = ID) %>%
+#         left_join(metadata(sim2)$gene_info, by=c("cluster_id", "gene")) %>%
+#         filter(category == "ee") %>%
+#         ggplot(aes(P.Value)) +
+#             geom_histogram() + 
+#             theme_classic() +
+#             theme(aspect.ratio=1) +
+#             facet_wrap(~cluster_id)
+
+
+
+
+
+
+
+
+
+
+
+

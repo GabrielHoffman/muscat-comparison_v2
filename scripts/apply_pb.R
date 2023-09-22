@@ -52,11 +52,3 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
 }
 
 
-# df = tab %>%
-#         as_tibble %>%
-#         mutate(cluster_id = assay, gene = ID) %>%
-#         left_join(metadata(sce)$gene_info, by=c("cluster_id", "gene")) %>%
-#         filter(category != "ee")
-
-
-# hist(df$P.Value)
