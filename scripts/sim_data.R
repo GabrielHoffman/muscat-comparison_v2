@@ -93,46 +93,49 @@ saveRDS(sim2, args$sim)
 
 
 # # test sampling
-with(colData(sim2), xtabs(~sample_id + cluster_id))
+# with(colData(sim2), xtabs(~sample_id + cluster_id))
 
 
-library(dreamlet)
-# use dreamlet pseudobulk command here
-pb <- aggregateToPseudoBulk(sim2, cluster_id = "cluster_id",sample_id = "sample_id")
+# library(dreamlet)
+# # use dreamlet pseudobulk command here
+# pb <- aggregateToPseudoBulk(sim2, cluster_id = "cluster_id",sample_id = "sample_id")
 
-vobj <- processAssays(pb, ~ 1, verbose=FALSE, min.count=3, useCountsWeights=TRUE)
-# plotVoom(vobj)
-fit <- dreamlet(vobj, ~ group_id, verbose=FALSE )
+# vobj <- processAssays(pb, ~ 1, verbose=FALSE, min.count=3, useCountsWeights=TRUE)
+# # plotVoom(vobj)
+# fit <- dreamlet(vobj, ~ group_id, verbose=FALSE )
 
-topTable(fit, coef='group_idB', number=Inf, sort.by="none") %>%
-        as_tibble %>%
-        mutate(cluster_id = assay, gene = ID) %>%
-        left_join(metadata(sim2)$gene_info, by=c("cluster_id", "gene")) %>%
-        filter(category == "ee") %>%
-        ggplot(aes(P.Value)) +
-            geom_histogram() + 
-            theme_classic() +
-            theme(aspect.ratio=1) +
-            facet_wrap(~cluster_id)
-
-
-pb = aggregateToPseudoBulk(sce[,sce$subclass=="Astro"],
-    assay = "counts", 
-    cluster_id = "subclass",
-    sample_id = "SubID")
-
-pb$value = rnorm(ncol(pb))
-
-res.proc = processAssays( pb, form, assays="Astro")
-
-fit = dreamlet(res.proc, ~ value)
-
-hist(topTable(fit, coef="value", number=Inf)$P.Value)
+# topTable(fit, coef='group_idB', number=Inf, sort.by="none") %>%
+#         as_tibble %>%
+#         mutate(cluster_id = assay, gene = ID) %>%
+#         left_join(metadata(sim2)$gene_info, by=c("cluster_id", "gene")) %>%
+#         filter(category == "ee") %>%
+#         ggplot(aes(P.Value)) +
+#             geom_histogram() + 
+#             theme_classic() +
+#             theme(aspect.ratio=1) +
+#             facet_wrap(~cluster_id)
 
 
+# pb = aggregateToPseudoBulk(sce[,sce$subclass=="Astro"],
+#     assay = "counts", 
+#     cluster_id = "subclass",
+#     sample_id = "SubID")
+
+# pb$value = rnorm(ncol(pb))
+
+# res.proc = processAssays( pb, ~ 1, assays="Astro", useCountsWeights=TRUE)
+# # plotVoom(res.proc)
+
+# fit = dreamlet(res.proc, ~ value)
+
+# hist(topTable(fit, coef="value", number=Inf)$P.Value)
 
 
 
+# assignInNamespace('processOneAssay', value = f, ns="dreamlet")
+# checkFormula = dreamlet:::checkFormula
+# library(variancePartition)
+# library(edgeR)
 
 
 
