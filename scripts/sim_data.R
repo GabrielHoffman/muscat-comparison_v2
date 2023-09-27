@@ -43,7 +43,7 @@ if( k_scaling > 1){
 
         # sample cell counts from Negative Binomial 
         # Poisson if theta = mu^2
-        ncells = MASS::rnegbin(1, mu=target, theta=.1) #3
+        ncells = MASS::rnegbin(1, mu=target, theta=1e8) #.1
          
         ncells = max(5, ncells)
 
