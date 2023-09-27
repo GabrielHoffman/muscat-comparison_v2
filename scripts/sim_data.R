@@ -42,8 +42,12 @@ if( k_scaling > 1){
         target = tab[df_grid$sid[i],df_grid$cid[i]]/k_scaling
 
         # sample cell counts from Negative Binomial 
-        # Poisson if theta = mu^2
-        ncells = MASS::rnegbin(1, mu=target, theta=1e8) #.1
+        # Poisson if theta = Inf
+        # additive overdispersion is mu^2/theta
+        # variance is 'a' times the Poisson variance 
+        a = 5
+        theta = target / (a-1)
+        ncells = MASS::rnegbin(1, mu=target, theta=theta)
          
         ncells = max(5, ncells)
 
