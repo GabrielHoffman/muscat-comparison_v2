@@ -45,7 +45,7 @@ if( k_scaling > 1){
         # Poisson if theta = Inf
         # additive overdispersion is mu^2/theta
         # variance is 'a' times the Poisson variance 
-        a = 5
+        a = 10
         theta = target / (a-1)
         ncells = MASS::rnegbin(1, mu=target, theta=theta)
          
