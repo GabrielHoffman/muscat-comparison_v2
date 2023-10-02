@@ -47,7 +47,7 @@ if( k_scaling > 1){
         # variance is 'a' times the Poisson variance 
         # a = 10
         # theta = target / (a-1)
-        theta = 10
+        theta = 20
         ncells = MASS::rnegbin(1, mu=target, theta=theta)
          
         ncells = max(5, ncells)
