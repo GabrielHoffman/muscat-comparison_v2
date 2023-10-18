@@ -48,3 +48,10 @@ file = "/sc/arion/projects/CommonMind/aging/hui/files/aging_lister_combined_ds10
 sce = readH5AD(file, verbose=TRUE, use_hdf5=TRUE)
 
 Error: numpy.core._exceptions._ArrayMemoryError: Unable to allocate 30.5 GiB for an array with shape (4097142408,) and data type float64
+
+files = paste0("results/", list.files("results"))
+files = files[grep("s(\\d+).rds", files)]
+
+args = list(res = files)
+
+wcs = list(x = 's')

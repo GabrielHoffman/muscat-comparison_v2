@@ -22,11 +22,17 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
 
             useCountsWeights = ifelse(pars$method == "dreamlet", TRUE, FALSE)
 
+            if( useCountsWeights ){
+                W.list = getWeightsList(sce, "cell", "id")
+            }else{
+                W.list = NULL
+            }
+
             library(dreamlet)
             # use dreamlet pseudobulk command here
             pb <- aggregateToPseudoBulk(sce, a, fun = pars$fun, scale = pars$scale, cluster_id = "cluster_id",sample_id = "sample_id")
 
-            vobj <- processAssays(pb, ~ 1, verbose=FALSE, min.count=3, useCountsWeights=useCountsWeights)
+            vobj <- processAssays(pb, ~ 1, verbose=FALSE, min.count=3, weightsList = W.list)
             fit <- dreamlet(vobj, ~ group_id, verbose=FALSE )
             tab <- topTable(fit, coef='group_idB', number=Inf, sort.by="none")
 
