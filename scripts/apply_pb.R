@@ -23,7 +23,7 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
             useCountsWeights = ifelse(pars$method == "dreamlet", TRUE, FALSE)
 
             if( useCountsWeights ){
-                W.list = getWeightsList(sce, "cell", "id")
+                W.list = getWeightsList(sce, "cluster_id", "sample_id")
             }else{
                 W.list = NULL
             }
