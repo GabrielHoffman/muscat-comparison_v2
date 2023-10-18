@@ -4,6 +4,7 @@ suppressMessages({
     library(scater)
     library(sctransform)
     library(SingleCellExperiment)
+    library(dreamlet)
 })
 
 apply_pb <- function(sce, pars, ds_only = TRUE) {
