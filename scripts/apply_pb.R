@@ -5,6 +5,7 @@ suppressMessages({
     library(sctransform)
     library(SingleCellExperiment)
     library(dreamlet)
+    library(edgeR)
 })
 
 apply_pb <- function(sce, pars, ds_only = TRUE) {
@@ -28,7 +29,7 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
                 # W.list = lapply( W.list, trimWeightOutliers, zmax=3)
 
                 # Perform Bootstraps
-                geneExprBoot = lapply(seq(10), function(i) 
+                geneExprBoot = lapply(seq(100), function(i) 
                                     getBootLCPM(sce))
 
                 # Summarize Bootstraps
@@ -79,14 +80,14 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
 
 getBootLCPM = function(sce){
     # interate thu donors, cell types and bootstrap reps
-    df_grid = expand.grid(cellType = unique(sce$cell),
-                        ID =  unique(sce$id))
+    df_grid = expand.grid(cellType = unique(sce$cluster_id),
+                        ID =  unique(sce$sample_id))
 
     # bootstrap indeces
     idx = sapply( seq(nrow(df_grid)), function(i){
 
         # filter
-        idx = which(df_grid$cellType[i] == sce$cell & df_grid$ID[i] == sce$id)
+        idx = which(df_grid$cellType[i] == sce$cluster_id & df_grid$ID[i] == sce$sample_id)
 
         # bootstrap sample
         idx[sample.int(length(idx), length(idx), replace=TRUE)]
@@ -96,8 +97,8 @@ getBootLCPM = function(sce){
     # pseudobulk of boostrap
     pb <- aggregateToPseudoBulk(sce[,idx],
       assay = "counts",
-      cluster_id = "cell",
-      sample_id = "id",
+      cluster_id = "cluster_id",
+      sample_id = "sample_id",
       verbose = FALSE)
 
     geneExpr = lapply( assayNames(pb), function(CT){
