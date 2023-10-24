@@ -30,7 +30,7 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
                 # W.list = lapply( W.list, trimWeightOutliers, zmax=3)
 
                 # Perform Bootstraps
-                geneExprBoot = lapply(seq(100), function(i) 
+                geneExprBoot = lapply(seq(25), function(i) 
                                     getBootLCPM(sce))
 
                 # Summarize Bootstraps
