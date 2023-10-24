@@ -25,12 +25,16 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
 
             useCountsWeights = ifelse(pars$method == "dreamlet", TRUE, FALSE)
 
+            library(dreamlet)
+            # use dreamlet pseudobulk command here
+            pb <- aggregateToPseudoBulk(sce, a, fun = pars$fun, scale = pars$scale, cluster_id = "cluster_id",sample_id = "sample_id")
+
             if( useCountsWeights ){
                 # W.list = getWeightsList(sce, "cluster_id", "sample_id", 10)
                 # W.list = lapply( W.list, trimWeightOutliers, zmax=3)
 
                 # Perform Bootstraps
-                geneExprBoot = lapply(seq(25), function(i) 
+                geneExprBoot = lapply(seq(50), function(i) 
                                     getBootLCPM(sce))
 
                 # Summarize Bootstraps
@@ -65,10 +69,6 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
             }else{
                 W.list = NULL
             }
-
-            library(dreamlet)
-            # use dreamlet pseudobulk command here
-            pb <- aggregateToPseudoBulk(sce, a, fun = pars$fun, scale = pars$scale, cluster_id = "cluster_id",sample_id = "sample_id")
 
             vobj <- processAssays(pb, ~ 1, verbose=FALSE, min.count=3, weightsList = W.list)
             fit <- dreamlet(vobj, ~ group_id, verbose=FALSE )
