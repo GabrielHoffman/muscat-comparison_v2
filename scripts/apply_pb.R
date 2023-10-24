@@ -24,8 +24,22 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
             useCountsWeights = ifelse(pars$method == "dreamlet", TRUE, FALSE)
 
             if( useCountsWeights ){
-                W.list = getWeightsList(sce, "cluster_id", "sample_id", 10)
-                W.list = lapply( W.list, trimWeightOutliers, zmax=3)
+                # W.list = getWeightsList(sce, "cluster_id", "sample_id", 10)
+                # W.list = lapply( W.list, trimWeightOutliers, zmax=3)
+
+                # Perform Bootstraps
+                geneExprBoot = lapply(seq(10), function(i) 
+                                    getBootLCPM(sce))
+
+                # Summarize Bootstraps
+                bootVars = summarizeBootstraps( geneExprBoot )
+
+                W.list = lapply( names(bootVars), function(x){
+                    W = 1 / bootVars[[x]]
+                    W / rowMeans(W)
+                    })
+                names(W.list) = names(bootVars)
+
             }else{
                 W.list = NULL
             }
@@ -62,3 +76,67 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
 }
 
 
+
+getBootLCPM = function(sce){
+    # interate thu donors, cell types and bootstrap reps
+    df_grid = expand.grid(cellType = unique(sce$cell),
+                        ID =  unique(sce$id))
+
+    # bootstrap indeces
+    idx = sapply( seq(nrow(df_grid)), function(i){
+
+        # filter
+        idx = which(df_grid$cellType[i] == sce$cell & df_grid$ID[i] == sce$id)
+
+        # bootstrap sample
+        idx[sample.int(length(idx), length(idx), replace=TRUE)]
+        })
+    idx = sort(unlist(idx))
+
+    # pseudobulk of boostrap
+    pb <- aggregateToPseudoBulk(sce[,idx],
+      assay = "counts",
+      cluster_id = "cell",
+      sample_id = "id",
+      verbose = FALSE)
+
+    geneExpr = lapply( assayNames(pb), function(CT){
+
+        dge = DGEList(counts = assay(pb, CT))
+        dge = calcNormFactors(dge)
+        edgeR::cpm(dge, log=TRUE)
+        })
+    names(geneExpr) = assayNames(pb)
+
+    geneExpr
+}
+
+
+summarizeBootstraps = function(geneExprBoot){
+    # interate thu donors, cell types and bootstrap reps
+    CT.names = names(geneExprBoot[[1]])
+    id.names = colnames(geneExprBoot[[1]][[1]])
+
+    df_var = lapply( CT.names, function(CT){
+
+        df_var = lapply(id.names, function(id){
+
+            # create matrix of boostrap samples for cell type and id
+            Y = lapply( seq(length(geneExprBoot)), function(j){
+                geneExprBoot[[j]][[CT]][,id,drop=FALSE]
+            })
+            Y = do.call(cbind, Y)
+
+            # variance from boostraps
+            y.var = rowVars(Y, useNames=TRUE)
+
+            y.var = data.frame(var = y.var)
+            colnames(y.var) = id
+
+            y.var
+        })
+        as.matrix(do.call(cbind, df_var))
+    })
+    names(df_var) = CT.names
+    df_var
+}
