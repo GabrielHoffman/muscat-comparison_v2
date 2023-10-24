@@ -6,6 +6,7 @@ suppressMessages({
     library(SingleCellExperiment)
     library(dreamlet)
     library(edgeR)
+    library(matrixStats)
 })
 
 apply_pb <- function(sce, pars, ds_only = TRUE) {
@@ -35,9 +36,13 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
                 # Summarize Bootstraps
                 bootVars = summarizeBootstraps( geneExprBoot )
 
+                weightCap = 10
                 W.list = lapply( names(bootVars), function(x){
                     W = 1 / bootVars[[x]]
-                    W / rowMeans(W)
+                    W <- W / rowMins( W, useNames=FALSE)
+                    W[W > weightCap] <- weightCap
+                    W = trimWeightOutliers(W)
+                    W / rowMeans2(W, useNames=FALSE)
                     })
                 names(W.list) = names(bootVars)
 
@@ -141,3 +146,29 @@ summarizeBootstraps = function(geneExprBoot){
     names(df_var) = CT.names
     df_var
 }
+
+
+trimWeightOutliersGene = function(x, zmax){
+
+    # compute z-score
+    zscore = scale(x)
+
+    # extract parameters of transform
+    # z-score = (x - mu) / s
+    mu = attr(zscore,"scaled:center")
+    s = attr(zscore,"scaled:scale")
+    
+    # if x exceeds original value giving z-score of zmax, 
+    # replace with that orginal value
+    x[x > zmax * s + mu] = zmax * s + mu
+
+    # normalize values to have a mean of 1
+    x / mean(x)
+}
+
+
+trimWeightOutliers = function(W, zmax = 5){
+
+    t(apply(W, 1, trimWeightOutliersGene, zmax = zmax))
+}
+
