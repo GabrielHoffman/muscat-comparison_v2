@@ -7,6 +7,7 @@ suppressMessages({
     library(dreamlet)
     library(edgeR)
     library(matrixStats)
+    library(tidyverse)
 })
 
 apply_pb <- function(sce, pars, ds_only = TRUE) {
@@ -33,38 +34,48 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
                 # W.list = getWeightsList(sce, "cluster_id", "sample_id", 10)
                 # W.list = lapply( W.list, trimWeightOutliers, zmax=3)
 
+                # prior count *per cell* scaled by variation in library size
+                lambda = 0.01
+                lib.size <- colSums2(counts(sce))
+                prior.count <- lambda * lib.size/mean(lib.size)
+                df_pc = data.frame(ID = sce[['sample_id']], 
+                    cellType = sce[['cluster_id']], 
+                    prior.count = prior.count) %>%
+                    group_by(cellType, ID) %>%
+                    summarize(prior.count = sum(prior.count), n=length(ID))
+
                 # Perform Bootstraps
                 geneExprBoot = lapply(seq(50), function(i) 
-                                    getBootLCPM(sce))
+                                    getBootLCPM(sce, "cluster_id", "sample_id", df_pc))
 
                 # Summarize Bootstraps
-                bootVars = summarizeBootstraps( geneExprBoot )
+                W.list = summarizeBootstraps( geneExprBoot )
 
                 # smoothe element-wise variances
-                W.list = lapply(assayNames(pb), function(CT){
-                    dge = DGEList(counts = assay(pb, CT))
-                    y = edgeR::cpm(dge, log=TRUE)
+                # W.list = lapply(assayNames(pb), function(CT){
+                #     dge = DGEList(counts = assay(pb, CT))
+                #     y = edgeR::cpm(dge, log=TRUE)
 
-                    sx = as.numeric(y)
-                    sy = as.numeric(bootVars[[CT]]^.25)
-                    l <- lowess(sx, sy, f = .2)
+                #     sx = as.numeric(y)
+                #     sy = as.numeric(bootVars[[CT]]^.25)
+                #     l <- lowess(sx, sy, f = .2)
 
-                    # plot(sx, sy)
-                    # lines(l, col = "red")
+                #     # plot(sx, sy)
+                #     # lines(l, col = "red")
 
-                    f <- approxfun(l, rule = 2, ties = list("ordered", mean))
+                #     f <- approxfun(l, rule = 2, ties = list("ordered", mean))
 
-                    w <- 1/f(y)^4
-                    w = matrix(w, nrow=nrow(y), ncol=ncol(y))
-                    rownames(w) = rownames(y)
-                    colnames(w) = colnames(y)
+                #     w <- 1/f(y)^4
+                #     w = matrix(w, nrow=nrow(y), ncol=ncol(y))
+                #     rownames(w) = rownames(y)
+                #     colnames(w) = colnames(y)
 
-                    weightCap = 10
-                    W <- w / rowMins( w, useNames=FALSE)
-                    W[W > weightCap] <- weightCap
-                    trimWeightOutliers(W)
-                })
-                names(W.list) = assayNames(pb)
+                #     weightCap = 10
+                #     W <- w / rowMins( w, useNames=FALSE)
+                #     W[W > weightCap] <- weightCap
+                #     trimWeightOutliers(W)
+                # })
+                # names(W.list) = assayNames(pb)
 
             }else{
                 W.list = NULL
@@ -99,16 +110,16 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
 
 
 
-getBootLCPM = function(sce, ndraws = NULL){
+getBootLCPM = function(sce, cluster_id, sample_id, df_pc, ndraws = NULL){
     # interate thu donors, cell types and bootstrap reps
-    df_grid = expand.grid(cellType = unique(sce$cluster_id),
-                        ID =  unique(sce$sample_id))
+    df_grid = expand.grid(cellType = unique(sce[[cluster_id]]),
+                        ID =  unique(sce[[sample_id]]))
 
     # bootstrap indeces
     idx = sapply( seq(nrow(df_grid)), function(i){
 
         # filter
-        idx = which(df_grid$cellType[i] == sce$cluster_id & df_grid$ID[i] == sce$sample_id)
+        idx = which(df_grid$cellType[i] == sce[[cluster_id]] & df_grid$ID[i] == sce[[sample_id]])
 
         # bootstrap cells
         if( is.null(ndraws) ){
@@ -123,15 +134,26 @@ getBootLCPM = function(sce, ndraws = NULL){
     # pseudobulk of boostrap
     pb <- aggregateToPseudoBulk(sce[,idx],
       assay = "counts",
-      cluster_id = "cluster_id",
-      sample_id = "sample_id",
+      cluster_id = cluster_id,
+      sample_id = sample_id,
       verbose = FALSE)
 
     geneExpr = lapply( assayNames(pb), function(CT){
 
-        dge = DGEList(counts = assay(pb, CT))
-        dge = calcNormFactors(dge)
-        edgeR::cpm(dge, log=TRUE, prior.count=0.25)
+        df_sub = df_pc %>% filter(cellType == CT)
+        pc = df_sub$prior.count
+        names(pc) = df_sub$ID
+            
+        countMatrix = assay(pb, CT)
+        pcMat = lapply(colnames(countMatrix), function(id)
+                    rpois(nrow(countMatrix), pc[id]))
+        pcMat = do.call(cbind, pcMat)
+        colnames(pcMat) = colnames(countMatrix)
+
+        dge = DGEList(counts = countMatrix + pcMat, 
+                            lib.size = colSums2(countMatrix))
+        # dge = calcNormFactors(dge)
+        edgeR::cpm(dge, log=TRUE, prior.count=.25)
         })
     names(geneExpr) = assayNames(pb)
 
@@ -153,8 +175,10 @@ summarizeBootstraps = function(geneExprBoot){
             })
             Y = do.call(cbind, Y)
 
-            # variance from boostraps
-            y.var = rowVars(Y, useNames=TRUE)
+            # y.mean = rowMeans2(Y, useNames=FALSE)
+
+            # sampling variance of mean from boostraps
+            y.var = rowVars(Y, useNames=TRUE) / ncol(Y)
 
             y.var = data.frame(var = y.var)
             colnames(y.var) = id
