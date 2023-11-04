@@ -31,27 +31,13 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
             pb <- aggregateToPseudoBulk(sce, a, fun = pars$fun, scale = pars$scale, cluster_id = "cluster_id",sample_id = "sample_id")
 
             if( useCountsWeights ){
-                # W.list = getWeightsList(sce, "cluster_id", "sample_id", 10)
-                # W.list = lapply( W.list, trimWeightOutliers, zmax=3)
+                
+                V.list1 = getVarList( sce, "cell", "id", shrink=TRUE, 0.01)
 
-                # prior count *per cell* scaled by variation in library size
-                lambda = 1
-                lib.size <- colSums2(counts(sce), useNames=FALSE)
-                prior.count <- lambda * lib.size/mean(lib.size)
-                df_pc = data.frame(ID = sce[['sample_id']], 
-                    cellType = sce[['cluster_id']], 
-                    prior.count = prior.count) %>%
-                    group_by(cellType, ID) %>%
-                    summarize(prior.count = sum(prior.count), n=length(ID))
-
-                # Perform Bootstraps
-                geneExprBoot = lapply(seq(50), function(i) 
-                                    getBootLCPM(sce, "cluster_id", "sample_id", df_pc))
-
-                # Summarize Bootstraps
-                W.list = summarizeBootstraps( geneExprBoot )
-                W.list = lapply( W.list, trimWeightOutliers, zmax=3)
-
+                W.list = lapply(V.list1, function(x){
+                    x = 1 / x
+                    x / rowMeans(x)
+                    })
             }else{
                 W.list = NULL
             }
@@ -192,4 +178,100 @@ trimWeightOutliers = function(W, zmax = 5){
 
     t(apply(W, 1, trimWeightOutliersGene, zmax = zmax))
 }
+
+
+
+
+#' @export
+getVarFromCounts = function(countMatrix, prior.count = .25){
+
+    count.gene <- rowSums2(countMatrix, useNames=FALSE)
+    count.lib <- colSums2(countMatrix, useNames=FALSE)
+    ncell <- ncol(countMatrix)
+    sclSq <- sum(count.lib^2)
+
+    # add pseudocount
+    count.gene <- count.gene + prior.count
+    count.lib <- count.lib + 1
+
+    # normalize counts by library size
+    # add pseudocount to counts here
+    normCounts <- scale(countMatrix + prior.count, 
+                    scale = count.lib, 
+                    cente = FALSE)
+    # compute variance for each row
+    sigmaSq.hat.gene <- rowVars(normCounts, useNames=FALSE)
+    sigmaSq.hat.gene[is.na(sigmaSq.hat.gene)] <- 0
+
+    # compute variance
+    # vectorize
+    # v.hat <- 1 / count.gene + (sigmaSq.hat.gene * sclSq) / (ncell^2 *count.gene^2)
+
+    tibble(Gene = rownames(countMatrix), count.gene, sigmaSq.hat.gene, sclSq, ncell)
+}
+
+#' @export
+getVarForCellType = function(sce, cluster_id, sample_id, CT, prior.count){
+
+    idx = which(sce[[cluster_id]] == CT)
+    lib.size <- colSums2(counts(sce), cols=idx)
+    
+    df_pc = data.frame(ID = sce[[sample_id]][idx], 
+        cellType = sce[[cluster_id]][idx], 
+        prior.count = prior.count * lib.size/mean(lib.size)) %>%
+        group_by(cellType, ID) %>%
+        summarize(prior.count = sum(prior.count), n=length(ID))
+
+    # get variance estimates for each ID and gene
+    df <- lapply( unique(sce[[sample_id]]), function(ID){
+
+        idx <- sce[[cluster_id]] == CT & sce[[sample_id]] == ID
+        countMatrix = counts(sce)[,idx,drop=FALSE]
+
+        pc = df_pc$prior.count[df_pc$ID == ID]
+        
+        res <- getVarFromCounts( countMatrix, pc)
+        res$ID <- ID
+        res
+        })
+    bind_rows(df)
+}
+
+#' @export
+getVarList = function(sce, cluster_id, sample_id, shrink, prior.count){
+
+    if( ! cluster_id %in% colnames(colData(sce)) ){
+        msg <- paste0("sample_id entry not found in colData(sce): ", cluster_id)
+        stop( msg )
+    }
+    if( ! sample_id %in% colnames(colData(sce)) ){
+        msg <- paste0("sample_id entry not found in colData(sce): ", sample_id)
+        stop( msg )
+    }
+
+    var.list <- lapply( unique(sce[[cluster_id]]), function(CT){
+        df <- getVarForCellType( sce, cluster_id, sample_id, CT, prior.count) %>%
+                mutate(Gene = factor(Gene, rownames(sce)),
+                        ID = factor(ID))
+
+        if( shrink ){           
+            res <- limma::squeezeVar( df$sigmaSq.hat.gene, df$ncell-1, robust=FALSE)
+            # plot(df$sigmaSq.hat.gene, res$var.post, main=CT, log="xy")
+            # abline(0, 1, col="red")
+            # browser()
+            df$sigmaSq.hat.gene <- res$var.post
+        }
+        df$vhat <- with(df, 1 / count.gene + (sigmaSq.hat.gene * sclSq) / (ncell^2 *count.gene^2))
+
+        mat <- sparseMatrix(df$Gene, df$ID, 
+            x = df$vhat, 
+            dims = c(nlevels(df$Gene), nlevels(df$ID)),
+            dimnames = list(levels(df$Gene), levels(df$ID)))
+        as.matrix(mat)
+    })
+    names(var.list) <- unique(sce[[cluster_id]])
+    var.list
+}
+
+
 
