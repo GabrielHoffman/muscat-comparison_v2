@@ -8,6 +8,7 @@ suppressMessages({
     library(edgeR)
     library(matrixStats)
     library(tidyverse)
+    library(Matrix)
 })
 
 apply_pb <- function(sce, pars, ds_only = TRUE) {
