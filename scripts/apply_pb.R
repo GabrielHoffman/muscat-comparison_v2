@@ -33,7 +33,7 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
 
             if( useCountsWeights ){
                 
-                V.list1 = getVarList( sce, "cell", "id", shrink=TRUE, 0.01)
+                V.list1 = getVarList( sce, "cluster_id", "sample_id", shrink=TRUE, 0.01)
 
                 W.list = lapply(V.list1, function(x){
                     x = 1 / x
@@ -217,6 +217,8 @@ getVarForCellType = function(sce, cluster_id, sample_id, CT, prior.count){
     idx = which(sce[[cluster_id]] == CT)
     lib.size <- colSums2(counts(sce), cols=idx)
     
+    # scale prior count so that an observed count of 0
+    # gives zero variance across samples
     df_pc = data.frame(ID = sce[[sample_id]][idx], 
         cellType = sce[[cluster_id]][idx], 
         prior.count = prior.count * lib.size/mean(lib.size)) %>%
