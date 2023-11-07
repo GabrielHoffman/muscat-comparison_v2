@@ -36,10 +36,10 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
                 # two part correction
                 # 1) counts: scale pseudocount so zero counts -> zero var
                 # 2) sigSq: shrink sample var to handle small n
-                V.list1 = getVarList( sce, "cluster_id", "sample_id", shrink=TRUE, 0.01)
+                V.list1 = getVarList( sce, "cluster_id", "sample_id", shrink=TRUE, 5)
 
                 W.list = lapply(V.list1, function(x){
-                    x = 1 / x
+                    x = 1 / ( x + quantile(x, .3))
                     x / rowMeans(x)
                     })
             }else{
@@ -194,7 +194,7 @@ getVarFromCounts = function(countMatrix, prior.count = .25){
     ncell <- ncol(countMatrix)
     sclSq <- sum(count.lib^2)
 
-    # add pseudocount
+    # add pseudocount for each cell
     count.gene <- count.gene + prior.count
     count.lib <- count.lib + 1
 
@@ -226,7 +226,7 @@ getVarForCellType = function(sce, cluster_id, sample_id, CT, prior.count){
         cellType = sce[[cluster_id]][idx], 
         prior.count = prior.count * lib.size/mean(lib.size)) %>%
         group_by(cellType, ID) %>%
-        summarize(prior.count = sum(prior.count), n=length(ID))
+        summarize(n=length(ID), prior.count = sum(prior.count) / n)
 
     # get variance estimates for each ID and gene
     df <- lapply( unique(sce[[sample_id]]), function(ID){
@@ -242,6 +242,25 @@ getVarForCellType = function(sce, cluster_id, sample_id, CT, prior.count){
         })
     bind_rows(df)
 }
+
+
+# df = bind_rows(df)
+# df[df$Gene == gene,] %>% arrange(ID)
+# df_pc
+
+# idx <- sce[[cluster_id]] == CT & sce[[sample_id]] == 'sample1.A'
+# countMatrix1 = counts(sce)[,idx,drop=FALSE]
+
+# idx <- sce[[cluster_id]] == CT & sce[[sample_id]] == 'sample15.A'
+# countMatrix2 = counts(sce)[,idx,drop=FALSE]
+
+
+# countMatrix1[gene,]
+# countMatrix2[gene,]
+
+
+
+# hist(df[df$Gene == gene,]$count.gene)
 
 #' @export
 getVarList = function(sce, cluster_id, sample_id, shrink, prior.count){
@@ -267,9 +286,9 @@ getVarList = function(sce, cluster_id, sample_id, shrink, prior.count){
             # browser()
             df$sigmaSq.hat.gene <- res$var.post
         }
-        # df$vhat <- with(df, 1 / count.gene + (sigmaSq.hat.gene * sclSq) / (ncell^2 *count.gene^2))
+        df$vhat <- with(df, 1 / count.gene + (sigmaSq.hat.gene * sclSq) / (ncell^2 *count.gene^2))
         # only count variance
-        df$vhat <- with(df, 1 / count.gene)
+        # df$vhat <- with(df, 1 / count.gene)
 
         mat <- sparseMatrix(df$Gene, df$ID, 
             x = df$vhat, 
