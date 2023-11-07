@@ -33,6 +33,9 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
 
             if( useCountsWeights ){
                 
+                # two part correction
+                # 1) counts: scale pseudocount so zero counts -> zero var
+                # 2) sigSq: shrink sample var to handle small n
                 V.list1 = getVarList( sce, "cluster_id", "sample_id", shrink=TRUE, 0.01)
 
                 W.list = lapply(V.list1, function(x){
@@ -264,7 +267,9 @@ getVarList = function(sce, cluster_id, sample_id, shrink, prior.count){
             # browser()
             df$sigmaSq.hat.gene <- res$var.post
         }
-        df$vhat <- with(df, 1 / count.gene + (sigmaSq.hat.gene * sclSq) / (ncell^2 *count.gene^2))
+        # df$vhat <- with(df, 1 / count.gene + (sigmaSq.hat.gene * sclSq) / (ncell^2 *count.gene^2))
+        # only count variance
+        df$vhat <- with(df, 1 / count.gene)
 
         mat <- sparseMatrix(df$Gene, df$ID, 
             x = df$vhat, 
