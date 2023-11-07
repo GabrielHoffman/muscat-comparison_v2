@@ -51,7 +51,6 @@ if( k_scaling > 1){
         ncells = MASS::rnegbin(1, mu=target, theta=theta)
          
         ncells = max(5, ncells)
-        # ncells = target
 
         if( ncells < length(keep)){
             keep <- sample(keep, ncells)

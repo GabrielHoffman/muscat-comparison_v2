@@ -7,6 +7,7 @@ ml git python gcc/11.2.0
 
 # clear results
 # rm -f plots/* results/* logs/* meta/* meta/*/* data/sim_data/*
+rm -f plots/* 
 Rscript setup.R
 
 
@@ -37,10 +38,6 @@ R --args res="results/kang,de*_ns*" wcs="did=kang,x=s" ggp="plots/kang-perf_by_n
 
 
 
-# Set alpha = 1e5: 2:13 pm
-# Set alpha = 100: 3:07 pm
-# Set alpha = 20: 4:30 pm
-# Set alpha = 1: 10:00 pm
 
 
 library(zellkonverter)
@@ -100,6 +97,79 @@ plot(assay(vobj1, 1)$weights[i,], assay(vobj2, 1)$weights[i,])
 
 tab1[i,]
 tab2[i,]
+
+R CMD BATCH "--args sim=data/sim_data/kang,de10_nc,4.rds fun=scripts/apply_pb.R wcs=c=25,did=kang,g=x,i=4,j=1,k=x,mid=dreamlet.sum.counts,s=x,sid=de10_nc  meth_pars=meta/meth_pars/dreamlet.sum.counts.json run_pars=meta/run_pars/kang,de10_nc.json res=results/kang,de10_nc,4,dreamlet.sum.counts,1,gx,c25,kx,sx.rds" scripts/run_meth.R logs/run_meth-kang,de10_nc,4,dreamlet.sum.counts,1,gx,c25,kx,sx.Rout
+
+
+tabSub = tab[tab$assay=="cluster1",]
+v = apply(W.list[[1]][tabSub$ID,], 1, function(x) max(x))
+
+plot(v, -log10(tabSub$P.Value))
+
+
+
+rs = rowSums(
+df[df$Gene == gene,] %>% arrange(ID))
+
+which.min(rs)
+gene3435 
+      97 
+> which.min(rs)
+gene = "gene3435"
+W.list[[1]][gene,]
+
+V.list1 = getVarList( sce, "cluster_id", "sample_id", shrink=TRUE, 0.01)
+
+V.list1[[1]][gene,]
+
+
+
+
+gene = "gene2341"
+idx <- sce[[cluster_id]] == CT & sce[[sample_id]] == 'sample1.A'
+countMatrix1 = counts(sce)[,idx,drop=FALSE]
+
+idx <- sce[[cluster_id]] == CT & sce[[sample_id]] == 'sample25.A'
+countMatrix2 = counts(sce)[,idx,drop=FALSE]
+
+countMatrix1[gene,]
+countMatrix2[gene,]
+
+
+
+df_pc %>%
+	filter(ID %in% c('sample1.A', 'sample25.A'))
+
+
+df %>%
+	filter(ID %in% c('sample1.A', 'sample25.A')) %>%
+	filter(Gene == gene)
+
+
+V.list1 = getVarList( sce, "cluster_id", "sample_id", shrink=TRUE,5)
+
+W.list = lapply(V.list1, function(x){
+    x = 1 / ( x + quantile(x, 0.2))
+    x / rowMeans(x)
+    })
+
+vobj <- processAssays(pb, ~ 1, verbose=FALSE, min.count=3, weightsList = W.list)
+fit <- dreamlet(vobj, ~ group_id, verbose=FALSE )
+tab <- topTable(fit, coef='group_id', number=Inf, sort.by="none")
+hist(tab$P.Value)
+
+
+hist(apply(W.list[[1]], 1, sd))
+
+
+hist(apply(W.list[[1]], 1, max))
+
+
+
+
+
+
+
 
 
 
