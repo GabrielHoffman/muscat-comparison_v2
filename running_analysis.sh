@@ -2,7 +2,7 @@
 # Use PsychAD for sims
 #######################
 cd /sc/arion/projects/CommonMind/hoffman/muscat-comparison_v2/data/raw_data
-
+R
 library(zellkonverter)
 library(SingleCellExperiment)
 file = "PsychAD_r0_Dec_28_2022.h5ad"
@@ -19,8 +19,8 @@ colData(sceSub) = droplevels(colData(sceSub))
 
 tab = with(colData(sceSub), table(subclass, Channel))
 cs = colSums(tab)
-chs = names(cs)[cs > 100]
-chs = grep("-1$", chs, value=TRUE)[1:50]
+chs = names(cs)[cs > 500]
+chs = grep("-1$", chs, value=TRUE)[1:8]
 
 # Subset based on donors
 idx = with(colData(sceSub), Channel %in% chs)
@@ -81,7 +81,7 @@ rsync -avPz sklar1:"/sc/arion/projects/CommonMind/hoffman/muscat-comparison_v2/p
 R --args res="results/kang,de*_ns*" wcs="did=kang,x=s" ggp="plots/kang-perf_by_ns.rds" fig="plots/kang-perf_by_ns.pdf" did="kang" x="s"
 
 
-
+data/raw_data/sce_kang.rds
 
 
 library(zellkonverter)
