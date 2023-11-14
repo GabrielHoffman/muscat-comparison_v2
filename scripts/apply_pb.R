@@ -36,7 +36,7 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
                 # two part correction
                 # 1) counts: scale pseudocount so zero counts -> zero var
                 # 2) sigSq: shrink sample var to handle small n
-                V.list1 = getVarList( sce, "cluster_id", "sample_id", shrink=TRUE)
+                V.list1 = getVarList( sce, "cluster_id", "sample_id", shrink=TRUE, 0.5)
 
                 # W.list = lapply(V.list1, function(x){
                 #     x = 1 / ( x + quantile(x, .2))

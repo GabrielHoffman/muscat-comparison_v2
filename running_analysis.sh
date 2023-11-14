@@ -56,7 +56,11 @@ Rscript setup.R
 git pull
 
 
-snakemake --rerun-incomplete --jobs 500 --cluster 'bsub -q premium -R "rusage[mem=16000]" -R span[hosts=1] -W 6:00 -P acc_CommonMind -n 5' 
+snakemake -R sim_data --jobs 500 --cluster 'bsub -q premium -R "rusage[mem=24000]" -R span[hosts=1] -W 6:00 -P acc_CommonMind -n 5' 
+
+
+
+snakemake --rerun-incomplete --jobs 500 --cluster 'bsub -q premium -R "rusage[mem=24000]" -R span[hosts=1] -W 6:00 -P acc_CommonMind -n 5' 
 
 
 
