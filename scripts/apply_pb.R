@@ -38,10 +38,10 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
                 # 2) sigSq: shrink sample var to handle small n
                 V.list1 = getVarList( sce, "cluster_id", "sample_id", shrink=TRUE, 0.5)
 
-                # W.list = lapply(V.list1, function(x){
-                #     x = 1 / ( x + quantile(x, .2))
-                #     x / rowMeans(x)
-                #     })
+                W.list = lapply(V.list1, function(x){
+                    # x = 1 / ( x + quantile(x, .2))
+                    x / rowMeans(x)
+                    })
             }else{
                 W.list = NULL
             }
