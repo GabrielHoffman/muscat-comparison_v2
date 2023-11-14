@@ -17,7 +17,7 @@ assignInNamespace( ".check_args_simData", function(u)
 
 # Simulate more cells than needed
 # Then downsample later
-k_scaling = 10
+k_scaling = 1
 
 sim <- simData(sce, 
     paired = FALSE, lfc = 0.5,
