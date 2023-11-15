@@ -11,16 +11,17 @@ counts(sce) = assay(sce, 'X')
 assay(sce, 'X') = NULL
 reducedDims(sce) <- NULL
 
-# only keep controls
+# only keep male controls in the same batch
 CTs = c("Astro", "EN_L2_3_IT")
-idx = with(colData(sce), Dx_AD == "Control" & Sex == "Male" & subclass %in% CTs)
+idx = with(colData(sce), Dx_AD == "Control" & Sex == "Male" & subclass %in% CTs & poolID %in% c("NPSAD-169-A1", "NPSAD-243-A2", "NPSAD-20201106-C1"))
 sceSub = sce[,idx]
 colData(sceSub) = droplevels(colData(sceSub))
 
 tab = with(colData(sceSub), table(subclass, Channel))
 cs = colSums(tab)
-chs = names(cs)[cs > 500]
-chs = grep("-1$", chs, value=TRUE)[1:8]
+chs = names(cs)
+# chs = names(cs)[cs > 500]
+# chs = grep("-1$", chs, value=TRUE)[1:8]
 
 # Subset based on donors
 idx = with(colData(sceSub), Channel %in% chs)
@@ -40,7 +41,7 @@ counts(sceSub) = as.matrix(counts(sceSub))
 
 rs = rowSums(counts(sceSub))
 
-saveRDS(sceSub[rs > 1000,], file="kang_sce0.rds")
+saveRDS(sceSub[rs > 100,], file="kang_sce0.rds")
 #------------------
 
 # cd /Users/gabrielhoffman/workspace/repos/eval_methods/muscat-comparison_v2
@@ -50,17 +51,18 @@ ml git python gcc/11.2.0
 
 # clear results
 # rm -f plots/* results/* logs/* meta/* meta/*/* data/sim_data/*
-rm -f plots/*  data/sim_data/*
+rm -f plots/*  data/sim_data/* 
 Rscript setup.R
 
 git pull
 
 
-snakemake -R sim_data --jobs 500 --cluster 'bsub -q premium -R "rusage[mem=24000]" -R span[hosts=1] -W 6:00 -P acc_CommonMind -n 5' 
+snakemake --rerun-incomplete --jobs 500 --cluster 'bsub -q premium -R "rusage[mem=16000]" -R span[hosts=1] -W 6:00 -P acc_CommonMind -n 5' 
 
 
+# snakemake -R sim_data --jobs 500 --cluster 'bsub -q premium -R "rusage[mem=24000]" -R span[hosts=1] -W 6:00 -P acc_CommonMind -n 5' 
 
-snakemake --rerun-incomplete --jobs 500 --cluster 'bsub -q premium -R "rusage[mem=24000]" -R span[hosts=1] -W 6:00 -P acc_CommonMind -n 5' 
+
 
 
 
