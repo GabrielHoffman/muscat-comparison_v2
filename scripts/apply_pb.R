@@ -49,7 +49,6 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
             vobj <- processAssays(pb, ~ 1, verbose=FALSE, min.count=8, weightsList = W.list, min.cells=2)
             fit <- dreamlet(vobj, ~ group_id, verbose=FALSE )
             tab <- topTable(fit, coef='group_idB', number=Inf, sort.by="none")
-            nrow(tab)
 
             tab2 = with(tab, data.frame(gene = ID, cluster_id = assay, logFC, AveExpr, t, p_val=P.Value, B, contrast='B'))
 
@@ -67,7 +66,6 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
                     list(pb = pb, filter = "both", verbose = FALSE),
                     pars[names(pars) %in% names(formals(pbDS))])),
                 error = function(e) e)
-            df = do.call("rbind", res$table$B)
 
             if (!inherits(res, "error"))
                 res <- dplyr::bind_rows(res$table[[1]])
