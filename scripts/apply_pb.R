@@ -36,7 +36,7 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
                 # two part correction
                 # 1) counts: scale pseudocount so zero counts -> zero var
                 # 2) sigSq: shrink sample var to handle small n
-                V.list1 = dreamlet:::getVarList( sce, "cluster_id", "sample_id", shrink=TRUE, 0.5)
+                V.list1 = dreamlet:::getVarList( sce, sample_id = "sample_id", cluster_id = "cluster_id", shrink=TRUE, 0.5)
 
                 W.list = lapply(V.list1, function(x){
                     x = 1 / ( x + quantile(x, .1))
@@ -46,7 +46,7 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
                 W.list = NULL
             }
 
-            vobj <- processAssays(pb, ~ 1, verbose=FALSE, min.count=8, weightsList = W.list, min.cells=2)
+            vobj <- processAssays(pb, ~ 1, verbose=FALSE, weightsList = W.list)#, min.cells=1, min.prop=.1, min.count=1)
             fit <- dreamlet(vobj, ~ group_id, verbose=FALSE )
             tab <- topTable(fit, coef='group_idB', number=Inf, sort.by="none")
 
@@ -59,16 +59,32 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
                 idx = which(tab2$cluster_id==CT)
                 tab2$p_adj.loc[idx] = p.adjust(tab2$p_val[idx], "BH")
             }
+
             res = tab2    
         }else{
+
+            # get gene/cluster pairs that are retained
+            library(dreamlet)
+            pb.tmp <- dreamlet::aggregateToPseudoBulk(sce, "counts", cluster_id = "cluster_id",sample_id = "sample_id")
+            vobj <- dreamlet::processAssays(pb.tmp, ~ 1, verbose=FALSE)
+            fit <- dreamlet(vobj, ~ group_id, verbose=FALSE )
+            tab <- topTable(fit, coef='group_idB', number=Inf, sort.by="none")
+            tab$key = with(tab, paste(assay, ID))
+
             res <- tryCatch(
                 do.call(pbDS, c(
-                    list(pb = pb, filter = "both", verbose = FALSE),
+                    list(pb = pb, filter = "none", verbose = FALSE),
                     pars[names(pars) %in% names(formals(pbDS))])),
                 error = function(e) e)
 
-            if (!inherits(res, "error"))
-                res <- dplyr::bind_rows(res$table[[1]])
+            if (!inherits(res, "error")){
+                 res <- dplyr::bind_rows(res$table[[1]])
+            }
+
+            # retain only gene/cluster pairs from dreamlet
+            keep = with(res, paste(cluster_id, gene)) %in% tab$key
+            res = res[keep,]
+            }
         }
     })[[3]]
     list(rt = c(t1, t2), tbl = res)
