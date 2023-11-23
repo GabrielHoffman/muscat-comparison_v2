@@ -84,7 +84,6 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
             # retain only gene/cluster pairs from dreamlet
             keep = with(res, paste(cluster_id, gene)) %in% tab$key
             res = res[keep,]
-            }
         }
     })[[3]]
     list(rt = c(t1, t2), tbl = res)
