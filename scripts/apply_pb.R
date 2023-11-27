@@ -40,7 +40,7 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
                 W.list = NULL
             }
 
-            vobj <- processAssays(pb, ~ group_id, verbose=FALSE, weightsList = W.list, min.cells=2, min.prop=.1, min.count=1)
+            vobj <- processAssays(pb, ~ group_id, verbose=FALSE, weightsList = W.list, min.cells=5, min.prop=.1, min.count=1)
             fit <- dreamlet(vobj, ~ group_id, verbose=FALSE )
             tab <- topTable(fit, coef='group_idB', number=Inf, sort.by="none")
 
@@ -60,14 +60,14 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
             # get gene/cluster pairs that are retained
             library(dreamlet)
             pb.tmp <- dreamlet::aggregateToPseudoBulk(sce, "counts", cluster_id = "cluster_id",sample_id = "sample_id")
-            vobj <- dreamlet::processAssays(pb.tmp, ~ group_id, verbose=FALSE, min.cells=2, min.prop=.0, min.count=1)
+            vobj <- dreamlet::processAssays(pb.tmp, ~ group_id, verbose=FALSE, min.cells=5, min.prop=.0, min.count=1)
             fit <- dreamlet(vobj, ~ group_id, verbose=FALSE )
             tab <- topTable(fit, coef='group_idB', number=Inf, sort.by="none")
             tab$key = with(tab, paste(assay, ID))
 
             res <- tryCatch(
                 do.call(pbDS, c(
-                    list(pb = pb, filter = "none", verbose = FALSE, min_cells=2),
+                    list(pb = pb, filter = "none", verbose = FALSE, min_cells=5),
                     pars[names(pars) %in% names(formals(pbDS))])),
                 error = function(e) e)
 
