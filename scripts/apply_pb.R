@@ -33,20 +33,14 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
 
             if( useCountsWeights ){
                 
-                # two part correction
-                # 1) counts: scale pseudocount so zero counts -> zero var
-                # 2) sigSq: shrink sample var to handle small n
-                V.list1 = dreamlet:::getVarList( sce, sample_id = "sample_id", cluster_id = "cluster_id", shrink=TRUE, 0.5)
+                # pseudobulk precision weights
+                W.list = pbWeights( sce, sample_id = "sample_id", cluster_id = "cluster_id")
 
-                W.list = lapply(V.list1, function(x){
-                    x = 1 / ( x + quantile(x, .1))
-                    x / rowMeans(x)
-                    })
             }else{
                 W.list = NULL
             }
 
-            vobj <- processAssays(pb, ~ 1, verbose=FALSE, weightsList = W.list, min.cells=1, min.prop=.1, min.count=1)
+            vobj <- processAssays(pb, ~ 1, verbose=FALSE, weightsList = W.list, min.cells=10, min.prop=.1, min.count=1)
             fit <- dreamlet(vobj, ~ group_id, verbose=FALSE )
             tab <- topTable(fit, coef='group_idB', number=Inf, sort.by="none")
 
@@ -66,7 +60,7 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
             # get gene/cluster pairs that are retained
             library(dreamlet)
             pb.tmp <- dreamlet::aggregateToPseudoBulk(sce, "counts", cluster_id = "cluster_id",sample_id = "sample_id")
-            vobj <- dreamlet::processAssays(pb.tmp, ~ group_id, verbose=FALSE, min.cells=1, min.prop=.1, min.count=1)
+            vobj <- dreamlet::processAssays(pb.tmp, ~ group_id, verbose=FALSE, min.cells=10, min.prop=.0, min.count=1)
             fit <- dreamlet(vobj, ~ group_id, verbose=FALSE )
             tab <- topTable(fit, coef='group_idB', number=Inf, sort.by="none")
             tab$key = with(tab, paste(assay, ID))
