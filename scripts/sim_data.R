@@ -27,7 +27,7 @@ assignInNamespace( ".check_args_simData", function(u)
     }
 
     # effect size heterogeneity
-    v = rgamma(1, 1, 5)
+    v = rgamma(1, 1, 50)
     mu = rnorm(1, 0, .1)
     lfc <- lfc + rnorm(length(lfc), mu, sqrt(v)) 
 
