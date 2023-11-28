@@ -37,7 +37,18 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
                 W.list = pbWeights( sce, sample_id = "sample_id", cluster_id = "cluster_id")
 
             }else{
-                W.list = NULL
+                # W.list = NULL
+                # number of cells
+                df_cc = cellCounts(pb)
+
+                W.list = lapply( unique(sce[['cluster_id']]), function(k){
+
+                    W = matrix(df_cc[,k], ncol=nrow(df_cc), nrow=nrow(sce), byrow=TRUE)
+                    colnames(W) = rownames(df_cc)
+                    rownames(W) = rownames(sce)
+                    W
+                })
+                names(W.list) = unique(sce[['cluster_id']])
             }
 
             vobj <- processAssays(pb, ~ group_id, verbose=FALSE, weightsList = W.list, min.cells=5, min.prop=.1, min.count=1)
