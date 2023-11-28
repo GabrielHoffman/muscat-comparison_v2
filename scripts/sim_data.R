@@ -15,6 +15,35 @@ set.seed(sim_pars$seed + as.numeric(wcs$i))
 assignInNamespace( ".check_args_simData", function(u)
     return(list(nk = u$nk, ns = u$ns)), ns="muscat")
 
+# simulate effect size heterogeneity
+# with a normal offset added to the logFC 
+.nb.replace <- function(cs, d, m, lfc = NULL, f = 1) {
+    n_gs <- length(d)
+    n_cs <- length(cs)
+    if (is.null(lfc)) {
+        lfc <- rep(0, n_gs)
+    } else {
+        lfc[lfc < 0] <- 0
+    }
+
+    # effect size heterogeneity
+    lfc <- lfc + rnorm(length(lfc), 0, .1) 
+
+    fc <- f * (2 ^ lfc)
+    fc <- rep(fc, each = n_cs)
+    ds <- rep(1/d, each = n_cs)
+    ms <- c(t(m[, cs])) * fc 
+    y <- rnbinom(n_gs * n_cs, size = ds, mu = ms)
+    y <- matrix(y, byrow = TRUE, 
+        nrow = n_gs, ncol = n_cs, 
+        dimnames = list(names(d), cs))
+    ms <- split(ms, rep(seq_len(nrow(m)), each = n_cs))
+    list(counts = y, means = ms)
+}
+
+assignInNamespace(".nb", .nb.replace, ns="muscat")
+
+
 # Simulate more cells than needed
 # Then downsample later
 k_scaling = 2

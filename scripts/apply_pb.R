@@ -7,6 +7,7 @@ suppressMessages({
     library(dreamlet)
     library(edgeR)
     library(matrixStats)
+    library(dreamlet)
     library(tidyverse)
     library(Matrix)
 })
@@ -27,29 +28,12 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
 
             useCountsWeights = ifelse(pars$method == "dreamlet", TRUE, FALSE)
 
-            library(dreamlet)
             # use dreamlet pseudobulk command here
             pb <- aggregateToPseudoBulk(sce, a, fun = pars$fun, scale = pars$scale, cluster_id = "cluster_id", sample_id = "sample_id")
 
-            if( useCountsWeights ){
-                
-                # pseudobulk precision weights
-                W.list = pbWeights( sce, sample_id = "sample_id", cluster_id = "cluster_id")
+            method.weights = ifelse(useCountsWeights, "delta", "ncells")
 
-            }else{
-                # W.list = NULL
-                # number of cells
-                df_cc = cellCounts(pb)
-
-                W.list = lapply( unique(sce[['cluster_id']]), function(k){
-
-                    W = matrix(df_cc[,k], ncol=nrow(df_cc), nrow=nrow(sce), byrow=TRUE)
-                    colnames(W) = rownames(df_cc)
-                    rownames(W) = rownames(sce)
-                    W
-                })
-                names(W.list) = unique(sce[['cluster_id']])
-            }
+            W.list = pbWeights( sce, sample_id = "sample_id", cluster_id = "cluster_id", method = method.weights)
 
             vobj <- processAssays(pb, ~ group_id, verbose=FALSE, weightsList = W.list, min.cells=5, min.prop=.1, min.count=1)
             fit <- dreamlet(vobj, ~ group_id, verbose=FALSE )
@@ -69,7 +53,6 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
         }else{
 
             # get gene/cluster pairs that are retained
-            library(dreamlet)
             pb.tmp <- dreamlet::aggregateToPseudoBulk(sce, "counts", cluster_id = "cluster_id",sample_id = "sample_id")
             vobj <- dreamlet::processAssays(pb.tmp, ~ group_id, verbose=FALSE, min.cells=5, min.prop=.0, min.count=1)
             fit <- dreamlet(vobj, ~ group_id, verbose=FALSE )
@@ -93,12 +76,6 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
     })[[3]]
     list(rt = c(t1, t2), tbl = res)
 }
-
-# i = match(with(res, paste(cluster_id, gene)), tab$key)
-
-# plot(res$logFC, tab$logFC)
-# abline(0, 1, col="red")
-
 
 
 
