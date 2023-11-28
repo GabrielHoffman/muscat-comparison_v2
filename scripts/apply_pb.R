@@ -24,16 +24,26 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
         pb <- aggregateData(sce, a, fun = pars$fun, scale = pars$scale)
     })[[3]]
     t2 <- system.time({
-        if( pars$method %in% c("dreamlet", "dreamlet_no_cell_weights") ){
-
-            useCountsWeights = ifelse(pars$method == "dreamlet", TRUE, FALSE)
+        if( pars$method %in% c("dreamlet_delta", "dreamlet_ncells", "dreamlet_none") ){
 
             # use dreamlet pseudobulk command here
             pb <- aggregateToPseudoBulk(sce, a, fun = pars$fun, scale = pars$scale, cluster_id = "cluster_id", sample_id = "sample_id")
 
-            method.weights = ifelse(useCountsWeights, "delta", "ncells")
-
-            W.list = pbWeights( sce, sample_id = "sample_id", cluster_id = "cluster_id", method = method.weights)
+            # Precision weights
+            W.list <- switch(pars$method, 
+                    "dreamlet_delta" = pbWeights( sce, 
+                                    sample_id = "sample_id", 
+                                    cluster_id = "cluster_id", 
+                                    method = "delta"), 
+                    "dreamlet_ncells" = pbWeights( sce, 
+                                    sample_id = "sample_id", 
+                                    cluster_id = "cluster_id", 
+                                    method = "ncells"),, 
+                    "dreamlet_none" = {w = pbWeights( sce, 
+                                    sample_id = "sample_id", 
+                                    cluster_id = "cluster_id", 
+                                    method = "ncells");
+                        lapply(w, function(x){x[] = 1; x})})
 
             vobj <- processAssays(pb, ~ group_id, verbose=FALSE, weightsList = W.list, min.cells=10, min.prop=.1, min.count=1)
             fit <- dreamlet(vobj, ~ group_id, verbose=FALSE )
@@ -52,6 +62,7 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
             res = tab2    
         }else{
 
+            # In order to keep the same genes for muscat as dreamlet
             # get gene/cluster pairs that are retained
             pb.tmp <- dreamlet::aggregateToPseudoBulk(sce, "counts", cluster_id = "cluster_id",sample_id = "sample_id")
             vobj <- dreamlet::processAssays(pb.tmp, ~ group_id, verbose=FALSE, min.cells=10, min.prop=.0, min.count=1)
