@@ -26,8 +26,11 @@ assignInNamespace( ".check_args_simData", function(u)
         lfc[lfc < 0] <- 0
     }
 
-    # effect size heterogeneity
-    lfc <- lfc + rnorm(length(lfc), 0, .1) 
+    # effect size heterogeneity for non-zero effects
+    if( any(lfc != 0) ){
+        i = lfc != 0
+        lfc[i] <- lfc[i] + rnorm(length(lfc[i]), 0, .1) 
+    }
 
     fc <- f * (2 ^ lfc)
     fc <- rep(fc, each = n_cs)
