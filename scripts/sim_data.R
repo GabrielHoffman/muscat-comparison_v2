@@ -30,6 +30,7 @@ assignInNamespace( ".check_args_simData", function(u)
     if( any(lfc != 0) ){
         i = lfc != 0
         lfc[i] <- lfc[i] + rnorm(length(lfc[i]), 0, .5) 
+        lfc[lfc < 0] <- 0
     }
 
     fc <- f * (2 ^ lfc)
