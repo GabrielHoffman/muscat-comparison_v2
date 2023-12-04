@@ -17,42 +17,42 @@ sim_pars <- list(
 )
 
 # unbalanced sample sizes ------------------------------------------------------
-gs_nk <- 2; ss_ns <- 30
-ss <- lapply(seq_len(4), function(i) {
-    ss <- rep(1, ss_ns) / seq(1, i, length = ss_ns)
-    ss / sum(ss)
-})
-for (i in seq_along(ss)) {
-    id <- paste0("de10_ss", i)
-    sim_pars[[id]] <- list(
-        nr = 3, seed = 130+20*(i-1),
-        nk = gs_nk, ns = ss_ns, 
-        p_dd = de10, probs = list(NULL, ss[[i]], NULL))
-}
-# unbalanced group sizes -------------------------------------------------------
-gs_nk <- 2; gs_ns <- 30; gs_nc <- 200
-gs <- list(c(0.5, 0.5), c(0.45, 0.55), c(0.4, 0.6), c(0.3, 0.7))
-cs <- sapply(gs, function(u) ceiling(gs_nc*gs_nk*gs_ns/u[1]))
+# gs_nk <- 2; ss_ns <- 30
+# ss <- lapply(seq_len(4), function(i) {
+#     ss <- rep(1, ss_ns) / seq(1, i, length = ss_ns)
+#     ss / sum(ss)
+# })
+# for (i in seq_along(ss)) {
+#     id <- paste0("de10_ss", i)
+#     sim_pars[[id]] <- list(
+#         nr = 3, seed = 130+20*(i-1),
+#         nk = gs_nk, ns = ss_ns, 
+#         p_dd = de10, probs = list(NULL, ss[[i]], NULL))
+# }
+# # unbalanced group sizes -------------------------------------------------------
+# gs_nk <- 2; gs_ns <- 30; gs_nc <- 200
+# gs <- list(c(0.5, 0.5), c(0.45, 0.55), c(0.4, 0.6), c(0.3, 0.7))
+# cs <- sapply(gs, function(u) ceiling(gs_nc*gs_nk*gs_ns/u[1]))
 
-for (i in seq_along(gs)) {
-    id <- paste0("de10_gs", i)
-    sim_pars[[id]] <- list(
-        nr = 3, seed = 150+20*(i-1),
-        nk = gs_nk, ns = gs_ns, nc = cs[i],
-        p_dd = de10, probs = list(NULL, NULL, gs[[i]]))
-}
+# for (i in seq_along(gs)) {
+#     id <- paste0("de10_gs", i)
+#     sim_pars[[id]] <- list(
+#         nr = 3, seed = 150+20*(i-1),
+#         nk = gs_nk, ns = gs_ns, nc = cs[i],
+#         p_dd = de10, probs = list(NULL, NULL, gs[[i]]))
+# }
   
-def_pars <- list(nr = 1, nk = 3, ns = 30, 
-    ng = 4e3, nc = function(nk, ns) 2*nk*ns*200, 
-    p_dd = de10, probs = NULL, seed = 1)
+# def_pars <- list(nr = 1, nk = 3, ns = 30, 
+#     ng = 4e3, nc = function(nk, ns) 2*nk*ns*200, 
+#     p_dd = de10, probs = NULL, seed = 1)
 
-sim_pars <- lapply(sim_pars, function(u) {
-    v <- !names(def_pars) %in% names(u)
-    u[names(def_pars)[v]] <- def_pars[v]
-    if (is.function(u$nc))
-        u$nc <- u$nc(u$nk, u$ns)
-    return(u)
-})
+# sim_pars <- lapply(sim_pars, function(u) {
+#     v <- !names(def_pars) %in% names(u)
+#     u[names(def_pars)[v]] <- def_pars[v]
+#     if (is.function(u$nc))
+#         u$nc <- u$nc(u$nk, u$ns)
+#     return(u)
+# })
 
 sim_ids <- names(sim_pars)
 write(jsonlite::toJSON(sim_ids), config$sids)
