@@ -17,18 +17,19 @@ sim_pars <- list(
 )
 
 # unbalanced sample sizes ------------------------------------------------------
-# gs_nk <- 2; ss_ns <- 30
-# ss <- lapply(seq_len(4), function(i) {
-#     ss <- rep(1, ss_ns) / seq(1, i, length = ss_ns)
-#     ss / sum(ss)
-# })
-# for (i in seq_along(ss)) {
-#     id <- paste0("de10_ss", i)
-#     sim_pars[[id]] <- list(
-#         nr = 3, seed = 130+20*(i-1),
-#         nk = gs_nk, ns = ss_ns, 
-#         p_dd = de10, probs = list(NULL, ss[[i]], NULL))
-# }
+gs_nk <- 2; ss_ns <- 60
+ss <- lapply(seq_len(4), function(i) {
+    ss <- rep(1, ss_ns) / seq(1, i, length = ss_ns)
+    ss / sum(ss)
+})
+for (i in seq_along(ss)) {
+    id <- paste0("de10_ss", i)
+    sim_pars[[id]] <- list(
+        nr = 3, seed = 130+20*(i-1),
+        nk = gs_nk, ns = ss_ns, 
+        p_dd = de10, probs = list(NULL, ss[[i]], NULL))
+}
+
 # # unbalanced group sizes -------------------------------------------------------
 gs_nk <- 2; gs_ns <- 30; gs_nc <- 200
 gs <- list(c(0.5, 0.5), c(0.45, 0.55), c(0.4, 0.6), c(0.3, 0.7))
