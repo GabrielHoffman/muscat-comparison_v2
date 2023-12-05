@@ -17,7 +17,7 @@ sim_pars <- list(
 )
 
 # unbalanced sample sizes ------------------------------------------------------
-gs_nk <- 2; ss_ns <- 60
+gs_nk <- 2; ss_ns <- 30
 ss <- lapply(seq_len(4), function(i) {
     ss <- rep(1, ss_ns) / seq(1, i, length = ss_ns)
     ss / sum(ss)
