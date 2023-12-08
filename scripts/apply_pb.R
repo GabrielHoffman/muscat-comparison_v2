@@ -30,11 +30,13 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
             pb <- aggregateToPseudoBulk(sce, a, fun = pars$fun, scale = pars$scale, cluster_id = "cluster_id", sample_id = "sample_id")
 
             # Precision weights
+            pc = 2
             W.list <- switch(pars$method, 
                     "dreamlet_delta" = pbWeights( sce, 
                                     sample_id = "sample_id", 
                                     cluster_id = "cluster_id", 
-                                    method = "delta"), 
+                                    method = "delta", 
+                                    prior.count = pc), 
                     "dreamlet_ncells" = pbWeights( sce, 
                                     sample_id = "sample_id", 
                                     cluster_id = "cluster_id", 
@@ -45,7 +47,7 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
                                     method = "ncells");
                         lapply(w, function(x){x[] = 1; x})})
 
-            vobj <- processAssays(pb, ~ group_id, verbose=FALSE, weightsList = W.list, min.cells=10, prior.count = 2)
+            vobj <- processAssays(pb, ~ group_id, verbose=FALSE, weightsList = W.list, min.cells=10, prior.count = pc)
             fit <- dreamlet(vobj, ~ group_id, verbose=FALSE )
             tab <- topTable(fit, coef='group_idB', number=Inf, sort.by="none")
 
