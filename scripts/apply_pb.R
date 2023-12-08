@@ -30,7 +30,7 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
             pb <- aggregateToPseudoBulk(sce, a, fun = pars$fun, scale = pars$scale, cluster_id = "cluster_id", sample_id = "sample_id")
 
             # Precision weights
-            pc = 0.5
+            pc = 2
             W.list <- switch(pars$method, 
                     "dreamlet_delta" = pbWeights( sce, 
                                     sample_id = "sample_id", 
@@ -67,7 +67,7 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
             # In order to keep the same genes for muscat as dreamlet
             # get gene/cluster pairs that are retained
             pb.tmp <- dreamlet::aggregateToPseudoBulk(sce, "counts", cluster_id = "cluster_id",sample_id = "sample_id")
-            vobj <- dreamlet::processAssays(pb.tmp, ~ group_id, verbose=FALSE, min.cells=10, prior.count = 0.5)
+            vobj <- dreamlet::processAssays(pb.tmp, ~ group_id, verbose=FALSE, min.cells=10, prior.count = 2)
             fit <- dreamlet(vobj, ~ group_id, verbose=FALSE )
             tab <- topTable(fit, coef='group_idB', number=Inf, sort.by="none")
             tab$key = with(tab, paste(assay, ID))
