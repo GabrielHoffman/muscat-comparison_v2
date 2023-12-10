@@ -25,16 +25,25 @@ assignInNamespace( ".check_args_simData", function(u)
     } else {
         lfc[lfc < 0] <- 0
     }
+    names(lfc) = names(d)
 
     # effect size heterogeneity for non-zero effects
     if( any(lfc != 0) ){
         i = lfc != 0
-        lfc[i] <- lfc[i] + rnorm(length(lfc[i]), 0, .5) 
+        lfc[i] <- lfc[i] #+ rnorm(length(lfc[i]), 0, .5) 
         lfc[lfc < 0] <- 0
     }
 
     fc <- f * (2 ^ lfc)
+    # cat fcs for all cells
     fc <- rep(fc, each = n_cs)
+
+    # cell-level heterogeneity when fc != 1
+    # i.e. lfc != 0
+    i = (fc != 1)
+    fc[i] = 2^(log2(fc[i]) + rnorm(sum(i), 0, .2))
+    # plot(log(fc))
+
     ds <- rep(1/d, each = n_cs)
     ms <- c(t(m[, cs])) * fc 
     y <- rnbinom(n_gs * n_cs, size = ds, mu = ms)
