@@ -41,7 +41,8 @@ assignInNamespace( ".check_args_simData", function(u)
     # cell-level heterogeneity when fc != 1
     # i.e. lfc != 0
     i = (fc != 1)
-    fc[i] = 2^(log2(fc[i]) + rnorm(sum(i), 0, .2))
+    s = sqrt(rgamma(sum(i),1, 1))
+    fc[i] = 2^(log2(fc[i]) + rnorm(sum(i), 0, s))
     # plot(log(fc))
 
     ds <- rep(1/d, each = n_cs)
