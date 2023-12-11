@@ -30,14 +30,13 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
             pb <- aggregateToPseudoBulk(sce, a, fun = pars$fun, scale = pars$scale, cluster_id = "cluster_id", sample_id = "sample_id")
 
             # Precision weights
-            pc = 0.5
+            pc = 2
             W.list <- switch(pars$method, 
                     "dreamlet_delta" = pbWeights( sce, 
                                     sample_id = "sample_id", 
                                     cluster_id = "cluster_id", 
                                     method = "delta", 
-                                    prior.count = pc, 
-                                    maxRatio = 100), 
+                                    prior.count = pc), 
                     "dreamlet_ncells" = pbWeights( sce, 
                                     sample_id = "sample_id", 
                                     cluster_id = "cluster_id", 
