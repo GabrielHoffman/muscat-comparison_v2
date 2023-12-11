@@ -110,7 +110,7 @@ if( k_scaling > 1){
     colnames(sim2) = paste0("cell", seq(ncol(sim2)))
 
     # filter genes
-    sim2 <- sim2[rowSums(counts(sim2) > 0) >= 10, ]
+    sim2 <- sim2[rowSums(counts(sim2) > 0) >= 50, ]
 
     # set number of cells
     metadata(sim2)$n_cells = table(sim2$sample_id)
