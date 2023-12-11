@@ -93,6 +93,65 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
 
 
 
+# Compared weighted variance along *rows* of X
+# where each element of X has its own positive weight
+rowWeightedVarsMatrix = function(X, W){
+
+    stopifnot(dim(X) == dim(W))
+
+    if( ! is.matrix(X) ) X <- as.matrix(X)
+    if( ! is.matrix(W) ) W <- as.matrix(W)
+
+    # scale weights to have a mean of 1
+    Ws <- W / rowMeans2(W, useNames=FALSE)
+
+    # weighted mean
+    mu <- rowMeans2(X * Ws, useNames=FALSE)
+
+    # weighted deviation
+    A <- sqrt(Ws)*(X - mu)
+
+    # sum of squares, divided by n-1
+    rowSums2(A ** 2, useNames=FALSE) / (ncol(X)-1)
+}
+
+
+#' @importFrom dplyr tibble bind_rows
+.getVarFromCounts <- function(countMatrix, lib.size, prior.count = .25){
+
+    stopifnot( ncol(countMatrix) == length(lib.size))
+
+    # if lib.size is NA, set it to zero
+    lib.size[is.na(lib.size)] = 0
+
+    countMatrix <- countMatrix + prior.count
+
+    # pseudobulk
+    count.gene <- rowSums2(countMatrix, useNames=FALSE)
+
+    # normalize counts by library size
+    # add pseudocount to counts here
+    normCounts <- scale(countMatrix, 
+                    scale = lib.size + 1, 
+                    center = FALSE)
+
+    # compute variance for each row
+    # sigSq.hat <- rowVars(normCounts, useNames=FALSE)
+
+    # weighted variance
+    sigSq.hat <- rowWeightedVarsMatrix(normCounts, countMatrix)
+    sigSq.hat[is.na(sigSq.hat)] <- 0
+
+    # return values to compute variance later
+    tibble(Gene = rownames(countMatrix), 
+            count.gene = count.gene,
+            sigSq.hat = sigSq.hat, 
+            zeta = mean(lib.size^2), 
+            ncell = ncol(countMatrix))
+}
+
+assignInNamespace("getVarFromCounts", .getVarFromCounts, ns="dreamlet")
+
 
 
 
