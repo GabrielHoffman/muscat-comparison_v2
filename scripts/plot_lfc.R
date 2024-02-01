@@ -29,13 +29,17 @@ p <- ggplot(sub, aes(x = sim_lfc, y = est_lfc, col = as.logical(is_de))) +
     geom_point_rast(size = 1, alpha = 0.4, raster.dpi = 100) +
     scale_color_manual(values = c("FALSE" = "royalblue", "TRUE" = "tomato")) +
     guides(color = guide_legend("differential", override.aes = list(size = 3, alpha = 1))) +
-    scale_x_continuous(limits = c(-6,6), breaks = seq(-4,4,4), expand = c(0,0)) +
-    scale_y_continuous(limits = c(-6,6), breaks = seq(-4,4,4), expand = c(0,0)) +
+    # tune::coord_obs_pred() +
+    scale_x_continuous(limits = c(-4,4)) +
+    scale_y_continuous(limits = c(-4,4)) +
     labs(x = "simulated logFC", y = "estimated logFC") +
     .prettify("bw") + theme(
         legend.position = "bottom",
         strip.text.x = element_text(size = 3),
         strip.text.y = element_text(size = 6))
+
+ggsave(p, file="~/www/test.png")
+
 
 saveRDS(p, args$ggp)
 ggsave(args$fig, p,
