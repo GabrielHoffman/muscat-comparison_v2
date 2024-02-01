@@ -18,8 +18,10 @@ df <- .read_res(args$res) %>%
 # dowsample to 2k cluster-gene combinations 
 # per method, simulation & gene type
 set.seed(29)
-sub <- ungroup(sample_n(group_by(df, mid, sid, is_de), 2e3))
-sub <- sub[sample(nrow(sub)), ]
+# sub <- ungroup(sample_n(group_by(df, mid, sid, is_de), 2e3))
+# sub <- sub[sample(nrow(sub)), ]
+
+sub = df
 
 p <- ggplot(sub, aes(x = sim_lfc, y = est_lfc, col = as.logical(is_de))) +
     facet_grid(vars(sid), vars(mid)) +
