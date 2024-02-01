@@ -30,7 +30,7 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
             pb <- aggregateToPseudoBulk(sce, a, fun = pars$fun, scale = pars$scale, cluster_id = "cluster_id", sample_id = "sample_id")
 
             # Gene expressed genes for each cell type
-            geneList = getExprGeneNames(pb)
+            geneList = getExprGeneNames(pb, min.cells=10)
 
             # Precision weights
             pc = 2
