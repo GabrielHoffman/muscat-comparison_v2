@@ -72,11 +72,11 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
 
             # In order to keep the same genes for muscat as dreamlet
             # get gene/cluster pairs that are retained
-            pb.tmp <- dreamlet::aggregateToPseudoBulk(sce, "counts", cluster_id = "cluster_id",sample_id = "sample_id")
-            vobj <- dreamlet::processAssays(pb.tmp, ~ group_id, verbose=FALSE, min.cells=10, prior.count = 2)
-            fit <- dreamlet(vobj, ~ group_id, verbose=FALSE )
-            tab <- topTable(fit, coef='group_idB', number=Inf, sort.by="none")
-            tab$key = with(tab, paste(assay, ID))
+            # pb.tmp <- dreamlet::aggregateToPseudoBulk(sce, "counts", cluster_id = "cluster_id",sample_id = "sample_id")
+            # vobj <- dreamlet::processAssays(pb.tmp, ~ group_id, verbose=FALSE, min.cells=10, prior.count = 2)
+            # fit <- dreamlet(vobj, ~ group_id, verbose=FALSE )
+            # tab <- topTable(fit, coef='group_idB', number=Inf, sort.by="none")
+            # tab$key = with(tab, paste(assay, ID))
 
             res <- tryCatch(
                 do.call(pbDS, c(
@@ -89,8 +89,9 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
             }
 
             # retain only gene/cluster pairs from dreamlet
-            keep = with(res, paste(cluster_id, gene)) %in% tab$key
-            res = res[keep,]
+            # keep = with(res, paste(cluster_id, gene)) %in% tab$key
+            # res = res[keep,]
+            res
         }
     })[[3]]
     list(rt = c(t1, t2), tbl = res)
