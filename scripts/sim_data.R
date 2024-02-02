@@ -73,7 +73,7 @@ sim <- simData(sce,
 # don't subsample genes
 tab = table(sim$sample_id, sim$cluster_id)
 
-sim <- sim[rowSums(counts(sim) > 10) >= 10, ]
+# sim <- sim[rowSums(counts(sim) > 10) >= 10, ]
 
 if( k_scaling > 1){
     df_grid = expand.grid(sid = levels(sim$sample_id), 
