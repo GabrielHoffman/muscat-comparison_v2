@@ -48,22 +48,26 @@ saveRDS(sceSub[rs > 100,], file="kang_sce0.rds")
 
 cd /sc/arion/projects/CommonMind/hoffman/muscat-comparison_v2/
 ml git python gcc/11.2.0
+git pull
 
 # clear results
 # rm -f plots/* results/* logs/* meta/* meta/*/* data/sim_data/*
 rm -f plots/*  data/sim_data/* 
 Rscript setup.R
 
-git pull
-
+git pull origin new
 
 snakemake --rerun-incomplete --jobs 500 --cluster 'bsub -q premium -R "rusage[mem=16000]" -R span[hosts=1] -W 6:00 -P acc_CommonMind -n 5' 
 
 
-# snakemake -R sim_data --jobs 500 --cluster 'bsub -q premium -R "rusage[mem=24000]" -R span[hosts=1] -W 6:00 -P acc_CommonMind -n 5' 
+# snakemake -R sim_qc --jobs 500 --cluster 'bsub -q premium -R "rusage[mem=24000]" -R span[hosts=1] -W 6:00 -P acc_CommonMind -n 5' 
 
 
 
+pars = list(assay = "counts", fun = "sum", scale = "false", method = "limma-voom", treat=FALSE)
+
+
+pars = list(assay = "counts", fun = "sum", scale = FALSE, method = "DESeq2", treat=FALSE)
 
 
 snakemake -j1 --rerun-incomplete
@@ -71,7 +75,42 @@ snakemake -j1 --rerun-incomplete
 # https://hoffmg01.u.hpc.mssm.edu/muscat-comparison_v2/
 
 
-snakemake -j1 -R plot_lfc
+snakemake -j1 -R plot_perf_by_nx
+
+
+## Feb 5 2024
+###############
+
+cd /sc/arion/projects/CommonMind/hoffman/muscat-comparison/
+ml git python gcc/11.2.0
+git pull origin new
+
+rm -f plots/* results/* logs/* meta/sim_pars/*
+mkdir -p results
+Rscript setup.R
+
+snakemake --rerun-incomplete --jobs 500 --cluster 'bsub -q premium -R "rusage[mem=16000]" -R span[hosts=1] -W 6:00 -P acc_CommonMind -n 5' 
+
+
+
+
+args = list(sce = "data/raw_data/ref_kang.rds", sim_pars = "meta/sim_pars/db10.json")
+
+
+sim <- simData(sce, 
+    paired = FALSE, lfc = .5 ,
+    force = TRUE,
+    ng = nrow(sce), nc = sim_pars$nc * k_scaling,
+    ns = 10, nk = 1,
+    p_dd = sim_pars$p_dd, probs = sim_pars$probs)
+
+sim$SubID = gsub("\\..*", "", sim$sample_id)
+
+
+pb <- aggregateToPseudoBulk(sim, "counts", cluster_id = "cluster_id", sample_id = "sample_id")
+
+
+snakemake --rerun-incomplete -j1
 
 
 # how many reads per cell?
@@ -217,6 +256,45 @@ hist(apply(W.list[[1]], 1, max))
 
 
 7fd3e8ec7fb9b92ea0fa2dcb2f6d343c936fe545
+
+
+ res <- tryCatch(
+                do.call(pbDS, c(
+                    list(pb = pb, filter = "none", verbose = TRUE, min_cells=10),
+                    pars[names(pars) %in% names(formals(pbDS))])),
+                error = function(e) e)
+
+debug(muscat:::.DESeq2)
+
+res = pbDS(pb, method = "limma-voom")
+
+res = pbDS(pb, method = "DESeq2")
+
+
+Error in rule run_meth:
+    jobid: 440
+    output: results/kang,dm10,6,DESeq2.sum.counts,1,gx,cx,kx,sx.rds
+    log: logs/run_meth-kang,dm10,6,DESeq2.sum.counts,1,gx,cx,kx,sx.Rout (check log file(s) for error message)
+    shell:
+        /hpc/packages/minerva-centos7/R/4.3.0/lib64/R/bin/R CMD BATCH --no-restore --no-save            "--args sim=data/sim_data/kang,dm10,6.rds fun=scripts/apply_pb.R wcs=c=x,did=kang,g=x,i=6,j=1,k=x,mid=DESeq2.sum.counts,s=x,sid=dm10   meth_pars=meta/meth_pars/DESeq2.sum.counts.json run_pars=meta/run_pars/kang,dm10.json res=results/kang,dm10,6,DESeq2.sum.counts,1,gx,cx,kx,sx.rds"              scripts/run_meth.R logs/run_meth-kang,dm10,6,DESeq2.sum.counts,1,gx,cx,kx,sx.Rout
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+
+
+
+ sim_pars = list(nc = 1000, ns = 60, nk=1)
+
+library(muscat)
+data(example_sce)
+library(SingleCellExperiment)
+
+# prep. SCE for simulation
+ref <- prepSim(example_sce)
+
+# simulate data
+sim <- simData(ref, nc = 200,
+	p_dd = c(0.9, 0, 0.1, 0, 0, 0),
+	ng = 100, force = TRUE,
+	probs = list(NULL, NULL, c(1, 0)))
 
 
 
