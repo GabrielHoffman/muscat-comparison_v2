@@ -13,6 +13,7 @@ names(.cat_cols) <- c("ee", "ep", "de", "dp", "dm", "db")
 
 
 .meth_cols <- rev(c(    
+    "dreamlet_deltaW.sum.counts" = "#e41ab5",
     "dreamlet_delta.sum.counts" = "#E41A1C",
     "dreamlet_ncells.sum.counts" = "#f76b5c",
     "dreamlet_none.sum.counts" = "#d1696a",

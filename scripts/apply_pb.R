@@ -24,22 +24,23 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
         pb <- aggregateData(sce, a, fun = pars$fun, scale = pars$scale)
     })[[3]]
     t2 <- system.time({
-        if( pars$method %in% c("dreamlet_delta", "dreamlet_ncells", "dreamlet_none") ){
+        if( pars$method %in% c("dreamlet_deltaW", "dreamlet_delta", "dreamlet_ncells", "dreamlet_none") ){
 
             # use dreamlet pseudobulk command here
-            pb <- aggregateToPseudoBulk(sce, a, fun = pars$fun, scale = pars$scale, cluster_id = "cluster_id", sample_id = "sample_id")
+            pb <- aggregateToPseudoBulk(sce, a, cluster_id = "cluster_id", sample_id = "sample_id", fun = pars$fun, scale = pars$scale)
 
             # Gene expressed genes for each cell type
-            geneList = getExprGeneNames(pb, min.cells=10)
+            geneList = getExprGeneNames(pb, min.cells=5)
 
             # Precision weights
-            pc = 2
+            pc = .5
             W.list <- switch(pars$method, 
                     "dreamlet_delta" = pbWeights( sce, 
                                     sample_id = "sample_id", 
                                     cluster_id = "cluster_id", 
                                     method = "delta", 
                                     geneList = geneList,
+                                    details = TRUE,
                                     prior.count = pc), 
                     "dreamlet_ncells" = pbWeights( sce, 
                                     sample_id = "sample_id", 
@@ -53,7 +54,9 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
                                     geneList = geneList);
                         lapply(w, function(x){x[] = 1; x})})
 
-            vobj <- processAssays(pb, ~ group_id, verbose=FALSE, weightsList = W.list, min.cells=10, prior.count = pc)
+            priorWeightsAsCounts = ifelse(pars$method == "dreamlet_deltaW", TRUE, FALSE)
+
+            vobj <- processAssays(pb, ~ group_id, verbose=FALSE, weightsList = W.list, min.cells=5, prior.count = pc, priorWeightsAsCounts=priorWeightsAsCounts)
             fit <- dreamlet(vobj, ~ group_id, verbose=FALSE )
             tab <- topTable(fit, coef='group_idB', number=Inf, sort.by="none")
 
