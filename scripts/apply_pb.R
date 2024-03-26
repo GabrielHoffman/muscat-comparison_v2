@@ -34,6 +34,7 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
 
             # Precision weights
             pc = .5
+            W.list = NULL
             W.list <- switch(pars$method, 
                     "dreamlet_delta" = pbWeights( sce, 
                                     sample_id = "sample_id", 
