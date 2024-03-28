@@ -14,7 +14,8 @@ mids <- levels(res$mid)
 
 res <- res %>%  
     mutate(E = (sim_mean.A + sim_mean.B) / 2) %>% 
-    dplyr::filter(E > 0.1) %>% setDT %>% 
+    # dplyr::filter(E > 0.1) %>% 
+    setDT %>% 
     mutate(p_val = pmin(p_val, 1)) %>% 
     split(by = c("i", "sid", "mid"), flatten = FALSE)
 
