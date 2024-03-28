@@ -55,7 +55,7 @@ git pull
 rm -f plots/*  data/sim_data/* 
 Rscript setup.R
 
-git pull origin new
+git pull #origin new
 
 snakemake --rerun-incomplete --jobs 500 --cluster 'bsub -q premium -R "rusage[mem=16000]" -R span[hosts=1] -W 6:00 -P acc_CommonMind -n 5' 
 
