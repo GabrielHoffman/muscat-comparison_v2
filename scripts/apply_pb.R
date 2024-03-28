@@ -56,7 +56,7 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
                         lapply(w, function(x){x[] = 1; x})})
 
             priorWeightsAsCounts = ifelse(pars$method == "dreamlet_deltaW", TRUE, FALSE)
-            rescaleWeightsAfter = ifelse(pars$method == "dreamlet_deltaW", TRUE, TRUE)
+            rescaleWeightsAfter = ifelse(pars$method == "dreamlet_deltaW", FALSE, TRUE)
 
             vobj <- processAssays(pb, ~ group_id, verbose=FALSE, weightsList = W.list, min.cells=5, prior.count = pc, priorWeightsAsCounts=priorWeightsAsCounts, rescaleWeightsAfter=rescaleWeightsAfter)
             fit <- dreamlet(vobj, ~ group_id, verbose=FALSE )
