@@ -56,12 +56,12 @@ assignInNamespace( ".check_args_simData", function(u)
     list(counts = y, means = ms)
 }
 
-assignInNamespace(".nb", .nb.replace, ns="muscat")
+# assignInNamespace(".nb", .nb.replace, ns="muscat")
 
 
 # Simulate more cells than needed
 # Then downsample later
-k_scaling = 2
+k_scaling = 5
 
 sim <- simData(sce, 
     paired = FALSE, lfc = 0.5,

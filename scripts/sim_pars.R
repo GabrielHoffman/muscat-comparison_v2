@@ -44,7 +44,7 @@ for (i in seq_along(gs)) {
 }
   
 def_pars <- list(nr = 1, nk = 3, ns = 30, 
-    ng = 4e3, nc = function(nk, ns) 2*nk*ns*200, 
+    ng = 15000, nc = function(nk, ns) 2*nk*ns*200, 
     p_dd = de10, probs = NULL, seed = 1)
 
 sim_pars <- lapply(sim_pars, function(u) {
