@@ -91,10 +91,10 @@ if( k_scaling > 1){
         # variance is 'a' times the Poisson variance 
         # a = 10
         # theta = target / (a-1)
-        theta = 3
+        theta = 1
         ncells = MASS::rnegbin(1, mu=target, theta=theta)
          
-        ncells = max(5, ncells)
+        ncells = max(1, ncells)
 
         if( ncells < length(keep)){
             keep <- sample(keep, ncells)
