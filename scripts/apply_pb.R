@@ -30,7 +30,7 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
             pb <- aggregateToPseudoBulk(sce, a, cluster_id = "cluster_id", sample_id = "sample_id", fun = pars$fun, scale = pars$scale)
 
             # Gene expressed genes for each cell type
-            geneList = getExprGeneNames(pb, min.cells=5)
+            geneList = getExprGeneNames(pb, min.cells=1)
 
             # Precision weights
             pc = .5
@@ -63,10 +63,10 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
                     prior.count = pc, 
                     priorWeightsAsCounts = priorWeightsAsCounts, 
                     rescaleWeightsAfter = rescaleWeightsAfter,
-                    min.cells = 1,
-                    min.count = 1,
+                    min.cells = 2,
+                    min.count = 2,
                     min.samples = 4,
-                    min.prop = 0.05)
+                    min.prop = 0.2)
             fit <- dreamlet(vobj, ~ group_id, verbose=FALSE )
             tab <- topTable(fit, coef='group_idB', number=Inf, sort.by="none")
 
@@ -87,10 +87,10 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
             # get gene/cluster pairs that are retained
             pb.tmp <- dreamlet::aggregateToPseudoBulk(sce, "counts", cluster_id = "cluster_id",sample_id = "sample_id")
             vobj <- dreamlet::processAssays(pb.tmp, ~ group_id, verbose=FALSE,
-                    min.cells = 1,
-                    min.count = 1,
+                    min.cells = 2,
+                    min.count = 2,
                     min.samples = 4,
-                    min.prop = 0.05)
+                    min.prop = 0.2)
             fit <- dreamlet(vobj, ~ group_id, verbose=FALSE )
             tab <- topTable(fit, coef='group_idB', number=Inf, sort.by="none")
             tab$key = with(tab, paste(assay, ID))
