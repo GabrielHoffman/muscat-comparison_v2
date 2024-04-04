@@ -62,7 +62,11 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
                     weightsList = W.list, 
                     prior.count = pc, 
                     priorWeightsAsCounts = priorWeightsAsCounts, 
-                    rescaleWeightsAfter = rescaleWeightsAfter)
+                    rescaleWeightsAfter = rescaleWeightsAfter,
+                    min.cells = 2,
+                    min.count = 2,
+                    min.samples = 4,
+                    min.prop = 0.1)
             fit <- dreamlet(vobj, ~ group_id, verbose=FALSE )
             tab <- topTable(fit, coef='group_idB', number=Inf, sort.by="none")
 
@@ -81,11 +85,11 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
 
             # In order to keep the same genes for muscat as dreamlet
             # get gene/cluster pairs that are retained
-            pb.tmp <- dreamlet::aggregateToPseudoBulk(sce, "counts", cluster_id = "cluster_id",sample_id = "sample_id")
-            vobj <- dreamlet::processAssays(pb.tmp, ~ group_id, verbose=FALSE)
-            fit <- dreamlet(vobj, ~ group_id, verbose=FALSE )
-            tab <- topTable(fit, coef='group_idB', number=Inf, sort.by="none")
-            tab$key = with(tab, paste(assay, ID))
+            # pb.tmp <- dreamlet::aggregateToPseudoBulk(sce, "counts", cluster_id = "cluster_id",sample_id = "sample_id")
+            # vobj <- dreamlet::processAssays(pb.tmp, ~ group_id, verbose=FALSE)
+            # fit <- dreamlet(vobj, ~ group_id, verbose=FALSE )
+            # tab <- topTable(fit, coef='group_idB', number=Inf, sort.by="none")
+            # tab$key = with(tab, paste(assay, ID))
 
             res <- tryCatch(
                 do.call(pbDS, c(
@@ -98,8 +102,8 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
             }
 
             # retain only gene/cluster pairs from dreamlet
-            keep = with(res, paste(cluster_id, gene)) %in% tab$key
-            res = res[keep,]
+            # keep = with(res, paste(cluster_id, gene)) %in% tab$key
+            # res = res[keep,]
             res
         }
     })[[3]]
