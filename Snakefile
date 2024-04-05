@@ -59,7 +59,7 @@ rule all:
 			#expand(config["raw_data"], "sce_{did}.rds"), did = config["dids"]),
 			#expand(config["raw_data"], "ref_{did}.rds"), did = config["dids"]),
 		# 'countsimQC' reports
-			expand(config["plots"] + "{did}-sim_qc.html", did = config["dids"]),
+			# expand(config["plots"] + "{did}-sim_qc.html", did = config["dids"]),
 		# pseudobulk-level mean-dispersion plots
 			expand(config["plots"] + "{did}-pb_mean_disp.pdf", did = config["dids"]),
 			expand(config["plots"] + "{did}-upset.pdf", did = config["dids"]),
