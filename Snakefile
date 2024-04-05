@@ -111,14 +111,14 @@ rule prep_sim:
 		"--args input_sce={input.sce} output_sce={output.sce}"\
 		{input.script} {log}'''
 
-rule sim_qc:
-	priority: 98
-	input:	script = config["scripts"] + "sim_qc.R",
-			sce = config["raw_data"] + "ref_{did}.rds"
-	output: config["plots"] + "{did}-sim_qc.html"
-	log:	config["logs"] + "sim_qc-{did}.Rout"
-	shell:	'''{R} CMD BATCH --no-restore --no-save\
-		"--args sce={input.sce} html={output}" {input.script} {log}'''
+# rule sim_qc:
+# 	priority: 98
+# 	input:	script = config["scripts"] + "sim_qc.R",
+# 			sce = config["raw_data"] + "ref_{did}.rds"
+# 	output: config["plots"] + "{did}-sim_qc.html"
+# 	log:	config["logs"] + "sim_qc-{did}.Rout"
+# 	shell:	'''{R} CMD BATCH --no-restore --no-save\
+# 		"--args sce={input.sce} html={output}" {input.script} {log}'''
 
 rule sim_data:
 	priority: 98
