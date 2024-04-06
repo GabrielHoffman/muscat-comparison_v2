@@ -30,7 +30,11 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
             pb <- aggregateToPseudoBulk(sce, a, cluster_id = "cluster_id", sample_id = "sample_id", fun = pars$fun, scale = pars$scale)
 
             # Gene expressed genes for each cell type
-            geneList = getExprGeneNames(pb, min.cells=1)
+            geneList = getExprGeneNames(pb,
+                    min.cells = 2,
+                    min.count = 2,
+                    min.samples = 4,
+                    min.prop = 0.1)
 
             # Precision weights
             pc = .5
@@ -53,7 +57,20 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
                                     cluster_id = "cluster_id", 
                                     method = "ncells", 
                                     geneList = geneList);
-                        lapply(w, function(x){x[] = 1; x})})
+                        lapply(w, function(x){x[] = 1; x})},
+                    "dreamlet_deltaW" = {w = pbWeights( sce, 
+                                    sample_id = "sample_id", 
+                                    cluster_id = "cluster_id", 
+                                    method = "ncells", 
+                                    geneList = geneList);
+                        id = names(w)
+                        w = lapply(id, function(x){
+
+                            as.matrix(assay(pb, x)[rownames(w[[x]]), colnames(w[[x]])] + 10)
+                                }
+                            )
+                        names(w) = id
+                        w})
 
             priorWeightsAsCounts = ifelse(pars$method == "dreamlet_deltaW", TRUE, FALSE)
             rescaleWeightsAfter = ifelse(pars$method == "dreamlet_deltaW", FALSE, TRUE)
@@ -93,7 +110,7 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
 
             res <- tryCatch(
                 do.call(pbDS, c(
-                    list(pb = pb, filter = "none", verbose = TRUE, min_cells=1),
+                    list(pb = pb, verbose = TRUE, min_cells=1),
                     pars[names(pars) %in% names(formals(pbDS))])),
                 error = function(e) e)
 
