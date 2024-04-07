@@ -57,20 +57,7 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
                                     cluster_id = "cluster_id", 
                                     method = "ncells", 
                                     geneList = geneList);
-                        lapply(w, function(x){x[] = 1; x})},
-                    "dreamlet_deltaW" = {w = pbWeights( sce, 
-                                    sample_id = "sample_id", 
-                                    cluster_id = "cluster_id", 
-                                    method = "ncells", 
-                                    geneList = geneList);
-                        id = names(w)
-                        w = lapply(id, function(x){
-
-                            as.matrix(assay(pb, x)[rownames(w[[x]]), colnames(w[[x]])] + 10)
-                                }
-                            )
-                        names(w) = id
-                        w})
+                        lapply(w, function(x){x[] = 1; x})}})
 
             priorWeightsAsCounts = ifelse(pars$method == "dreamlet_deltaW", TRUE, FALSE)
             rescaleWeightsAfter = ifelse(pars$method == "dreamlet_deltaW", FALSE, TRUE)
@@ -78,6 +65,7 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
             vobj <- processAssays(pb, ~ group_id, verbose=FALSE, 
                     weightsList = W.list, 
                     prior.count = pc, 
+                    prior.count.for.weights = 20,
                     priorWeightsAsCounts = priorWeightsAsCounts, 
                     rescaleWeightsAfter = rescaleWeightsAfter,
                     min.cells = 2,
