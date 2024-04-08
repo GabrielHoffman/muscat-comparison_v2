@@ -57,7 +57,7 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
                                     cluster_id = "cluster_id", 
                                     method = "ncells", 
                                     geneList = geneList);
-                        lapply(w, function(x){x[] = 1; x})}})
+                        lapply(w, function(x){x[] = 1; x})})
 
             priorWeightsAsCounts = ifelse(pars$method == "dreamlet_deltaW", TRUE, FALSE)
             rescaleWeightsAfter = ifelse(pars$method == "dreamlet_deltaW", FALSE, TRUE)
