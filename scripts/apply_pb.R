@@ -63,10 +63,10 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
                     prior.count = pc, 
                     priorWeightsAsCounts = priorWeightsAsCounts, 
                     rescaleWeightsAfter = rescaleWeightsAfter,
-                    min.cells = 2,
-                    min.count = 2,
+                    min.cells = 1,
+                    min.count = 1,
                     min.samples = 4,
-                    min.prop = 0.1)
+                    min.prop = 0.05)
             fit <- dreamlet(vobj, ~ group_id, verbose=FALSE )
             tab <- topTable(fit, coef='group_idB', number=Inf, sort.by="none")
 
