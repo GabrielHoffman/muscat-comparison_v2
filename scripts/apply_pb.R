@@ -58,10 +58,13 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
             priorWeightsAsCounts = ifelse(pars$method == "dreamlet_deltaW", TRUE, FALSE)
             rescaleWeightsAfter = ifelse(pars$method == "dreamlet_deltaW", FALSE, TRUE)
 
+            # regularized weights!!!!!!!!!!!!!!
+            # prior.count.for.weights
             vobj <- processAssays(pb, ~ group_id, verbose=FALSE, 
                     weightsList = W.list, 
                     prior.count = pc, 
                     priorWeightsAsCounts = priorWeightsAsCounts, 
+                    prior.count.for.weights = 10,
                     rescaleWeightsAfter = rescaleWeightsAfter,
                     min.cells = 1,
                     min.count = 1,
@@ -97,7 +100,7 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
 
             res <- tryCatch(
                 do.call(pbDS, c(
-                    list(pb = pb, filter = "none", verbose = TRUE, min_cells=1),
+                    list(pb = pb, filter = "both", verbose = TRUE, min_cells=1),
                     pars[names(pars) %in% names(formals(pbDS))])),
                 error = function(e) e)
 
