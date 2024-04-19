@@ -100,7 +100,7 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
 
             res <- tryCatch(
                 do.call(pbDS, c(
-                    list(pb = pb, filter = "both", verbose = TRUE, min_cells=1),
+                    list(pb = pb, filter = "none", verbose = TRUE, min_cells=1),
                     pars[names(pars) %in% names(formals(pbDS))])),
                 error = function(e) e)
 
