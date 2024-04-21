@@ -33,38 +33,14 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
             geneList = getExprGeneNames(pb, min.cells=1)
 
             # Precision weights
-            pc = .5
-            W.list = NULL
-            W.list <- switch(pars$method, 
-                    "dreamlet_delta" = pbWeights( sce, 
-                                    sample_id = "sample_id", 
-                                    cluster_id = "cluster_id", 
-                                    method = "delta", 
-                                    geneList = geneList,
-                                    details = TRUE,
-                                    prior.count = pc), 
-                    "dreamlet_ncells" = pbWeights( sce, 
-                                    sample_id = "sample_id", 
-                                    cluster_id = "cluster_id", 
-                                    method = "ncells", 
-                                    geneList = geneList), 
-                    "dreamlet_none" = {w = pbWeights( sce, 
-                                    sample_id = "sample_id", 
-                                    cluster_id = "cluster_id", 
-                                    method = "ncells", 
-                                    geneList = geneList);
-                        lapply(w, function(x){x[] = 1; x})})
-
             priorWeightsAsCounts = ifelse(pars$method == "dreamlet_deltaW", TRUE, FALSE)
             rescaleWeightsAfter = ifelse(pars$method == "dreamlet_deltaW", FALSE, TRUE)
 
-            # regularized weights!!!!!!!!!!!!!!
-            # prior.count.for.weights
             vobj <- processAssays(pb, ~ group_id, verbose=FALSE, 
                     weightsList = W.list, 
                     prior.count = pc, 
                     priorWeightsAsCounts = priorWeightsAsCounts, 
-                    prior.count.for.weights = 10,
+                    prior.count.for.weights = 5,
                     rescaleWeightsAfter = rescaleWeightsAfter,
                     min.cells = 1,
                     min.count = 1,
@@ -86,21 +62,9 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
             res = tab2    
         }else{
 
-            #  # In order to keep the same genes for muscat as dreamlet
-            # # get gene/cluster pairs that are retained
-            # pb.tmp <- dreamlet::aggregateToPseudoBulk(sce, "counts", cluster_id = "cluster_id",sample_id = "sample_id")
-            # vobj <- dreamlet::processAssays(pb.tmp, ~ group_id, verbose=FALSE,
-            #         min.cells = 1,
-            #         min.count = 1,
-            #         min.samples = 4,
-            #         min.prop = 0.05)
-            # fit <- dreamlet(vobj, ~ group_id, verbose=FALSE )
-            # tab <- topTable(fit, coef='group_idB', number=Inf, sort.by="none")
-            # tab$key = with(tab, paste(assay, ID))
-
             res <- tryCatch(
                 do.call(pbDS, c(
-                    list(pb = pb, filter = "none", verbose = TRUE, min_cells=1),
+                    list(pb = pb, filter = "genes", verbose = TRUE),
                     pars[names(pars) %in% names(formals(pbDS))])),
                 error = function(e) e)
 
@@ -108,9 +72,6 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
                  res <- dplyr::bind_rows(res$table[[1]])
             }
 
-            # retain only gene/cluster pairs from dreamlet
-            # keep = with(res, paste(cluster_id, gene)) %in% tab$key
-            # res = res[keep,]
             res
         }
     })[[3]]
