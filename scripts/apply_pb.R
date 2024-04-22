@@ -35,7 +35,7 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
 
             vobj <- processAssays(pb, ~ group_id, verbose=FALSE, 
                     priorWeightsAsCounts = priorWeightsAsCounts, 
-                    prior.count.for.weights = 5,
+                    prior.count.for.weights = 20,
                     rescaleWeightsAfter = rescaleWeightsAfter,
                     min.cells = 1,
                     min.count = 1,
@@ -59,7 +59,7 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
 
             res <- tryCatch(
                 do.call(pbDS, c(
-                    list(pb = pb, filter = "genes", verbose = TRUE),
+                    list(pb = pb, filter = "none", verbose = TRUE),
                     pars[names(pars) %in% names(formals(pbDS))])),
                 error = function(e) e)
 
