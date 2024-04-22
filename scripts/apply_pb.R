@@ -29,9 +29,6 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
             # use dreamlet pseudobulk command here
             pb <- aggregateToPseudoBulk(sce, a, cluster_id = "cluster_id", sample_id = "sample_id", fun = pars$fun, scale = pars$scale)
 
-            # Gene expressed genes for each cell type
-            geneList = getExprGeneNames(pb, min.cells=1)
-
             # Precision weights
             priorWeightsAsCounts = ifelse(pars$method == "dreamlet_deltaW", TRUE, FALSE)
             rescaleWeightsAfter = ifelse(pars$method == "dreamlet_deltaW", FALSE, TRUE)
