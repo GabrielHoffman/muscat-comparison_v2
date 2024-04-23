@@ -4,16 +4,16 @@ de10 <- c(0.9, 0, 0.1, 0, 0, 0)
 
 sim_pars <- list(
     # null simulations
-    nill = list(nr = 10, p_dd = diag(6)[1, ], seed = 1), 
+    nill = list(nr = 3, p_dd = diag(6)[1, ], seed = 1), 
     # pure simulations
-    de10 = list(nr = 10, p_dd = c(0.9, 0, 0.1, 0, 0, 0), seed = 10),
-    dp10 = list(nr = 10, p_dd = c(0.9, 0, 0, 0.1, 0, 0), seed = 30),
-    dm10 = list(nr = 10, p_dd = c(0.9, 0, 0, 0, 0.1, 0), seed = 50),
-    db10 = list(nr = 10, p_dd = c(0.9, 0, 0, 0, 0, 0.1), seed = 70),
+    de10 = list(nr = 3, p_dd = c(0.9, 0, 0.1, 0, 0, 0), seed = 10),
+    dp10 = list(nr = 3, p_dd = c(0.9, 0, 0, 0.1, 0, 0), seed = 30),
+    dm10 = list(nr = 3, p_dd = c(0.9, 0, 0, 0, 0.1, 0), seed = 50),
+    db10 = list(nr = 3, p_dd = c(0.9, 0, 0, 0, 0, 0.1), seed = 70),
     # increasing number of genes, cells, replicates
     # de10_ng = list(nr = 10, nk = 2, ns = 30, seed = 80, nc = 2*2*3*100),
-    de10_nc = list(nr = 10, nk = 2, ns = 30, seed = 90, nc = 2*2*3*500),
-    de10_ns = list(nr = 10, nk = 2, ns = 50, seed = 110)
+    de10_nc = list(nr = 3, nk = 2, ns = 30, seed = 90, nc = 2*2*3*500),
+    de10_ns = list(nr = 3, nk = 2, ns = 50, seed = 110)
 )
 
 # unbalanced sample sizes ------------------------------------------------------

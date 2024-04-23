@@ -30,7 +30,8 @@ names(.cat_cols) <- c("ee", "ep", "de", "dp", "dm", "db")
     #"scDD.logcounts"    = "#0056B2",
     #"scDD.vstresiduals" = "#009EF6",     
     
-    "MAST.logcounts"    = "#ed68b8"))
+    # "MAST.logcounts"    = "#ed68b8"))
+    ))
     
 #     "MM-dream"  = "#005E5C",
 #     "MM-dream2" = "#00ABA6",
