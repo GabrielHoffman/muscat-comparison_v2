@@ -25,13 +25,12 @@ names(.cat_cols) <- c("ee", "ep", "de", "dp", "dm", "db")
     "DESeq2.sum.counts" = "#984EA3",    
 
     "edgeR.sum.counts" = "#4DAF4A",
-    "edgeR.sum.scalecpm" = "#9cf099"
+    "edgeR.sum.scalecpm" = "#9cf099",
 
     #"scDD.logcounts"    = "#0056B2",
     #"scDD.vstresiduals" = "#009EF6",     
     
-    # "MAST.logcounts"    = "#ed68b8"))
-    ))
+    "MAST.logcounts"    = "#ed68b8"))
     
 #     "MM-dream"  = "#005E5C",
 #     "MM-dream2" = "#00ABA6",
