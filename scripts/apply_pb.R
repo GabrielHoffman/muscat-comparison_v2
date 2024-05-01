@@ -33,15 +33,15 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
             priorWeightsAsCounts = ifelse(pars$method == "dreamlet_deltaW", TRUE, FALSE)
             rescaleWeightsAfter = ifelse(pars$method == "dreamlet_deltaW", FALSE, TRUE)
 
-            vobj <- processAssays(pb, ~ group_id, verbose=FALSE, 
+            vobj <- processAssays(pb, ~ group_id, 
+                    verbose=FALSE, 
                     priorWeightsAsCounts = priorWeightsAsCounts, 
                     prior.count.for.weights = 3,
-                    rescaleWeightsAfter = FALSE)
-                    # ,
-                    # min.cells = 1,
-                    # min.count = 1,
-                    # min.samples = 4,
-                    # min.prop = 0.05)
+                    rescaleWeightsAfter = FALSE,
+                    min.cells = 2,
+                    min.count = 2,
+                    min.samples = 4,
+                    min.prop = 0.2)
             fit <- dreamlet(vobj, ~ group_id, verbose=FALSE )
             tab <- topTable(fit, coef='group_idB', number=Inf, sort.by="none")
 

@@ -61,7 +61,7 @@ assignInNamespace( ".check_args_simData", function(u)
 
 # Simulate more cells than needed
 # Then downsample later
-k_scaling = 5
+k_scaling = 2
 
 sim <- simData(sce, 
     paired = FALSE, lfc = 0.5,
@@ -72,6 +72,8 @@ sim <- simData(sce,
 
 # don't subsample genes
 tab = table(sim$sample_id, sim$cluster_id)
+ # table(sim2$sample_id, sim2$cluster_id)
+
 
 # sim <- sim[rowSums(counts(sim) > 10) >= 10, ]
 
@@ -84,6 +86,7 @@ if( k_scaling > 1){
         keep = which( sim$sample_id == df_grid$sid[i] & sim$cluster_id == df_grid$cid[i])
 
         target = tab[df_grid$sid[i],df_grid$cid[i]]/k_scaling
+        target = 50
 
         # sample cell counts from Negative Binomial 
         # Poisson if theta = Inf
@@ -91,7 +94,7 @@ if( k_scaling > 1){
         # variance is 'a' times the Poisson variance 
         # a = 10
         # theta = target / (a-1)
-        theta = 1
+        theta = 3
         ncells = MASS::rnegbin(1, mu=target, theta=theta)
          
         ncells = max(1, ncells)

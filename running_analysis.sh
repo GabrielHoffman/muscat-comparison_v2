@@ -1,7 +1,7 @@
 
 # Use PsychAD for sims
 #######################
-cd /sc/arion/projects/CommonMind/hoffman/muscat-comparison_v2/data/raw_data
+cd /sc/arion/projects/CommonMind/hoffman/muscat-comparison_v2/data/raw_data/pad
 R
 library(zellkonverter)
 library(SingleCellExperiment)
@@ -12,8 +12,8 @@ assay(sce, 'X') = NULL
 reducedDims(sce) <- NULL
 
 # only keep male controls in the same batch
-CTs = c("Astro", "EN_L2_3_IT")
-idx = with(colData(sce), Dx_AD == "Control" & Sex == "Male" & subclass %in% CTs & poolID %in% c("NPSAD-169-A1", "NPSAD-243-A2", "NPSAD-20201106-C1"))
+CTs = c("Astro", "Mural")
+idx = with(colData(sce), Dx_AD == "Control" & Sex == "Male" & subclass %in% CTs & poolID %in% c("NPSAD-169-A1", "NPSAD-243-A2", "NPSAD-20201106-C1", "NPSAD-169-A1", "NPSAD-243-A1", "NPSAD-217-C2", "NPSAD-228-A1", "NPSAD-119-A1", "NPSAD-141-A2", "NPSAD-235-A2"))
 sceSub = sce[,idx]
 colData(sceSub) = droplevels(colData(sceSub))
 
@@ -40,14 +40,19 @@ colData(sceSub) = droplevels(colData(sceSub))
 counts(sceSub) = as.matrix(counts(sceSub))
 
 rs = rowSums(counts(sceSub))
+# [rs > 5,]
 
-saveRDS(sceSub[rs > 100,], file="kang_sce0.rds")
+saveRDS(sceSub, file="kang_sce0.rds")
+
 #------------------
 
 # cd /Users/gabrielhoffman/workspace/repos/eval_methods/muscat-comparison_v2
 
-cd /sc/arion/projects/CommonMind/hoffman/muscat-comparison_v2/
-ml git python gcc/11.2.0
+# https://hoffmg01.u.hpc.mssm.edu/muscat-comparison_v3/plots/
+
+# cd /sc/arion/projects/CommonMind/hoffman/muscat-comparison_v2/
+cd /sc/arion/scratch/hoffmg01/muscat-comparison_v2
+ml python gcc/11.2.0
 git pull
 
 # clear results
@@ -57,7 +62,7 @@ Rscript setup.R
 
 git pull #origin new
 
-snakemake --rerun-incomplete --jobs 500 --cluster 'bsub -q premium -R "rusage[mem=16000]" -R span[hosts=1] -W 6:00 -P acc_CommonMind -n 5' 
+snakemake --rerun-incomplete --jobs 500 --cluster 'bsub -q premium -R "rusage[mem=16000]" -R span[hosts=1] -W 16:00 -P acc_CommonMind -n 8' 
 
 
 # snakemake -R sim_qc --jobs 500 --cluster 'bsub -q premium -R "rusage[mem=24000]" -R span[hosts=1] -W 6:00 -P acc_CommonMind -n 5' 
@@ -76,6 +81,8 @@ snakemake -j1 --rerun-incomplete
 
 
 snakemake -j1 -R plot_perf_by_nx
+snakemake -j1 -R sim_qc
+
 
 
 ## Feb 5 2024
