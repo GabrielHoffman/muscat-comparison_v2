@@ -31,7 +31,6 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
 
             # Precision weights
             priorWeightsAsCounts = ifelse(pars$method == "dreamlet_deltaW", TRUE, FALSE)
-            rescaleWeightsAfter = ifelse(pars$method == "dreamlet_deltaW", FALSE, TRUE)
 
             vobj <- processAssays(pb, ~ group_id, 
                     verbose=FALSE, 

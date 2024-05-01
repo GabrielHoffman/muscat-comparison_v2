@@ -86,7 +86,7 @@ if( k_scaling > 1){
         keep = which( sim$sample_id == df_grid$sid[i] & sim$cluster_id == df_grid$cid[i])
 
         target = tab[df_grid$sid[i],df_grid$cid[i]]/k_scaling
-        target = 50
+        target = 20
 
         # sample cell counts from Negative Binomial 
         # Poisson if theta = Inf
@@ -94,7 +94,7 @@ if( k_scaling > 1){
         # variance is 'a' times the Poisson variance 
         # a = 10
         # theta = target / (a-1)
-        theta = 3
+        theta = 1
         ncells = MASS::rnegbin(1, mu=target, theta=theta)
          
         ncells = max(1, ncells)
@@ -113,7 +113,7 @@ if( k_scaling > 1){
     colnames(sim2) = paste0("cell", seq(ncol(sim2)))
 
     # filter genes
-    sim2 <- sim2[rowSums(counts(sim2) > 0) >= 50, ]
+    sim2 <- sim2[rowSums(counts(sim2) > 0) >= 2, ]
 
     # set number of cells
     metadata(sim2)$n_cells = table(sim2$sample_id)
@@ -124,7 +124,7 @@ if( k_scaling > 1){
 }
 
 # Subsample genes 
-sim2 <- sim2[sample(nrow(sim2), min(nrow(sim2), sim_pars$ng)), ]
+# sim2 <- sim2[sample(nrow(sim2), min(nrow(sim2), sim_pars$ng)), ]
 
 # back to standard processing
 gi <- metadata(sim2)$gene_info 
