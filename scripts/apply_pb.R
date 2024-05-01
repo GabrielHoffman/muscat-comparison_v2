@@ -35,7 +35,7 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
             vobj <- processAssays(pb, ~ group_id, 
                     verbose=FALSE, 
                     priorWeightsAsCounts = priorWeightsAsCounts, 
-                    prior.count.for.weights = 3,
+                    prior.count.for.weights = .5,
                     rescaleWeightsAfter = FALSE,
                     min.cells = 2,
                     min.count = 2,
