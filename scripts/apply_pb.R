@@ -40,8 +40,7 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
                     min.cells = 2,
                     min.count = 2,
                     min.samples = 4,
-                    min.prop = 0.2,
-                    assays = "cluster1")
+                    min.prop = 0.2)
             fit <- dreamlet(vobj, ~ group_id, verbose=FALSE )
             tab <- topTable(fit, coef='group_idB', number=Inf, sort.by="none")
 
