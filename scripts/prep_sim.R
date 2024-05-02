@@ -7,7 +7,7 @@ ref <- readRDS(args$input_sce)
 # prep. SCE for simulation w/ 'muscat::simData'
 sce <- prepSim(ref, verbose = TRUE,
     # keep genes w/ count > 1 in >= 2 cells
-    min_count = 1, min_cells = 2,   
+    min_count = 1, min_cells = 1,   
     # keep cells w/ >= 100 detected genes & cluster w/ > 100 cells
     min_genes = 100, min_size = 100) 
 

@@ -31,7 +31,10 @@ for (i in seq_along(ss)) {
 }
 
 # # unbalanced group sizes -------------------------------------------------------
-gs_nk <- 2; gs_ns <- 30; gs_nc <- 200
+gs_nk <- 2; 
+gs_ns <- 30; 
+gs_nc <- 100 # 200
+
 gs <- list(c(0.5, 0.5), c(0.45, 0.55), c(0.4, 0.6), c(0.3, 0.7))
 cs <- sapply(gs, function(u) ceiling(gs_nc*gs_nk*gs_ns/u[1]))
 
@@ -44,7 +47,7 @@ for (i in seq_along(gs)) {
 }
   
 def_pars <- list(nr = 1, nk = 3, ns = 30, 
-    ng = 15000, nc = function(nk, ns) 2*nk*ns*200, 
+    ng = 21089, nc = function(nk, ns) 2*nk*ns*gs_nc, 
     p_dd = de10, probs = NULL, seed = 1)
 
 sim_pars <- lapply(sim_pars, function(u) {
