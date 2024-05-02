@@ -27,7 +27,7 @@ apply_pb <- function(sce, pars, ds_only = TRUE) {
         if( pars$method %in% c("dreamlet_deltaW", "dreamlet_delta", "dreamlet_ncells", "dreamlet_none") ){
 
             # use dreamlet pseudobulk command here
-            pb <- aggregateToPseudoBulk(sce, a, cluster_id = "cluster_id", sample_id = "sample_id", fun = pars$fun, scale = pars$scale)
+            pb <- aggregateToPseudoBulk(sce, a, cluster_id = "cluster_id", sample_id = "sample_id")#, fun = pars$fun, scale = pars$scale)
 
             # Precision weights
             priorWeightsAsCounts = ifelse(pars$method == "dreamlet_deltaW", TRUE, FALSE)
