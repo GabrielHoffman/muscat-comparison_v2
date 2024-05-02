@@ -7,7 +7,9 @@ suppressMessages({
     library(purrr)
 })
 
-#fns <- list.files("results/kang", "ds10_ss[0-9];", full.names = TRUE)
+#fns <- list.files("results/kang", "de10_ss", full.names = TRUE)
+
+# args$res = dir("results", pattern="de10_ss", full.names=TRUE)
 
 res <- .read_res(args$res) %>% 
     dplyr::mutate(E = (sim_mean.A + sim_mean.B) / 2) %>% 
