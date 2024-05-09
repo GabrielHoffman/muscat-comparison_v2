@@ -38,8 +38,6 @@ p <- ggplot(sub, aes(x = sim_lfc, y = est_lfc, col = as.logical(is_de))) +
         strip.text.x = element_text(size = 3),
         strip.text.y = element_text(size = 6))
 
-ggsave(p, file="~/www/test.png")
-
 
 saveRDS(p, args$ggp)
 ggsave(args$fig, p,

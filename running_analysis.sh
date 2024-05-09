@@ -12,10 +12,36 @@ assay(sce, 'X') = NULL
 reducedDims(sce) <- NULL
 
 # only keep male controls in the same batch
-CTs = c("Astro", "Mural")
+CTs = c("IN_VIP", "Astro" )
+CTs = c("IN_PVALB_CHC", "EN_L5_6_NP" )
+# sort(table(sce$subclass))
 idx = with(colData(sce), Dx_AD == "Control" & Sex == "Male" & subclass %in% CTs & poolID %in% c("NPSAD-169-A1", "NPSAD-243-A2", "NPSAD-20201106-C1", "NPSAD-169-A1", "NPSAD-243-A1", "NPSAD-217-C2", "NPSAD-228-A1", "NPSAD-119-A1", "NPSAD-141-A2", "NPSAD-235-A2"))
 sceSub = sce[,idx]
 colData(sceSub) = droplevels(colData(sceSub))
+sceSub$lib.size = colSums2(counts(sceSub))
+
+# Test pseudobulk and voom
+library(dreamlet)
+idx = sample(ncol(sceSub), 1000)
+idx = which(sceSub$lib.size < 4000)
+idx = 1:ncol(sceSub)
+pb = aggregateToPseudoBulk(sceSub[,idx], sample_id="SubID", cluster_id = "subclass")
+vobj = processAssays(pb, ~1, 
+                    verbose=TRUE, 
+                    priorWeightsAsCounts = TRUE, 
+                    prior.count.for.weights = .5,
+                    rescaleWeightsAfter = FALSE,
+                    min.cells = 0,
+                    min.count = 0,
+                    min.samples = 4,
+                    min.prop = 0,
+                    min.total.count = 1)
+plotVoom(vobj)
+
+
+
+
+
 
 tab = with(colData(sceSub), table(subclass, Channel))
 cs = colSums(tab)
@@ -28,7 +54,7 @@ idx = with(colData(sceSub), Channel %in% chs)
 sceSub = sceSub[,idx]
 colData(sceSub) = droplevels(colData(sceSub))
 
-table(sceSub$Channel, sceSub$subclass)
+table(sceSub$SubID, sceSub$subclass)
 
 sceSub$stim = sceSub$Dx_AD
 sceSub$ind = sceSub$SubID
@@ -43,6 +69,13 @@ rs = rowSums(counts(sceSub))
 # [rs > 5,]
 
 saveRDS(sceSub, file="kang_sce0.rds")
+
+
+cd /sc/arion/scratch/hoffmg01/muscat-comparison_v2
+Rscript scripts/prep_kang.R --input_sce data/raw_data/sce0_kang.rds --output_sce data/raw_data/ref_kang.rds
+
+
+
 
 #------------------
 
@@ -75,7 +108,7 @@ pars = list(assay = "counts", fun = "sum", scale = "false", method = "limma-voom
 pars = list(assay = "counts", fun = "sum", scale = FALSE, method = "DESeq2", treat=FALSE)
 
 
-snakemake -j1 --rerun-incomplete
+snakemake -j12 --rerun-incomplete
 
 # https://hoffmg01.u.hpc.mssm.edu/muscat-comparison_v2/
 
