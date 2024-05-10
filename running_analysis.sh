@@ -13,7 +13,7 @@ reducedDims(sce) <- NULL
 
 # only keep male controls in the same batch
 CTs = c("IN_VIP", "Astro" )
-CTs = c("IN_PVALB_CHC", "EN_L5_6_NP" )
+# CTs = c("IN_PVALB_CHC", "EN_L5_6_NP" )
 # sort(table(sce$subclass))
 idx = with(colData(sce), Dx_AD == "Control" & Sex == "Male" & subclass %in% CTs & poolID %in% c("NPSAD-169-A1", "NPSAD-243-A2", "NPSAD-20201106-C1", "NPSAD-169-A1", "NPSAD-243-A1", "NPSAD-217-C2", "NPSAD-228-A1", "NPSAD-119-A1", "NPSAD-141-A2", "NPSAD-235-A2"))
 sceSub = sce[,idx]
@@ -23,12 +23,12 @@ sceSub$lib.size = colSums2(counts(sceSub))
 # Test pseudobulk and voom
 library(dreamlet)
 idx = sample(ncol(sceSub), 1000)
-idx = which(sceSub$lib.size < 4000)
-idx = 1:ncol(sceSub)
+# idx = which(sceSub$lib.size < 4000)
+# idx = 1:ncol(sceSub)
 pb = aggregateToPseudoBulk(sceSub[,idx], sample_id="SubID", cluster_id = "subclass")
 vobj = processAssays(pb, ~1, 
                     verbose=TRUE, 
-                    priorWeightsAsCounts = TRUE, 
+                    priorWeightsAsCounts = FALSE, 
                     prior.count.for.weights = .5,
                     rescaleWeightsAfter = FALSE,
                     min.cells = 0,
@@ -38,7 +38,7 @@ vobj = processAssays(pb, ~1,
                     min.total.count = 1)
 plotVoom(vobj)
 
-
+sceSub = sceSub[,idx]
 
 
 
