@@ -72,12 +72,11 @@ sim <- simData(sce,
 
 # don't subsample genes
 tab = table(sim$sample_id, sim$cluster_id)
- # table(sim2$sample_id, sim2$cluster_id)
-
 
 # sim <- sim[rowSums(counts(sim) > 10) >= 10, ]
 
 if( k_scaling > 1){
+    
     df_grid = expand.grid(sid = levels(sim$sample_id), 
                             cid = levels(sim$cluster_id))
 
@@ -94,7 +93,7 @@ if( k_scaling > 1){
         # variance is 'a' times the Poisson variance 
         # a = 10
         # theta = target / (a-1)
-        theta = 1
+        theta = 3
         ncells = MASS::rnegbin(1, mu=target, theta=theta)
          
         ncells = max(1, ncells)
@@ -108,6 +107,9 @@ if( k_scaling > 1){
 
     # Subsample
     sim2 = sim[,keep]
+
+    tab2 = table(sim2$sample_id, sim2$cluster_id)
+    colMeans(tab2)
 
     # rename cells
     colnames(sim2) = paste0("cell", seq(ncol(sim2)))
