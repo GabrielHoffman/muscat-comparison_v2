@@ -5,7 +5,9 @@ suppressMessages({
     library(scater)
     library(sctransform)
     library(SingleCellExperiment) 
+    library(future)
 })
+options(future.globals.maxSize = 10.0 * 1e9)
 
 # load data & simulation parameters
 sce <- readRDS(args$sce)
