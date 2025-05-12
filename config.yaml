@@ -1,4 +1,4 @@
-R: "/hpc/packages/minerva-centos7/R/4.3.3/lib64/R/bin/R"
+R: "/hpc/packages/minerva-rocky9/R/4.4.3-intel-mkl/lib64/R/bin/R"
 
 scripts: "scripts/"
 utils: "scripts/utils.R"
