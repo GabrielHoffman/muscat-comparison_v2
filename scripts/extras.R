@@ -41,7 +41,7 @@ getExprGeneNames <- function(sceObj, assays = assayNames(sceObj), min.cells = 5,
 
     # merge data_constant (data constant for all cell types)
     # with metadata(sceObj)$aggr_means (data that varies)
-    data <- merge_metadata(
+    data <- dreamlet:::merge_metadata(
       data_constant,
       get_metadata_aggr_means(sceObj),
       k,
