@@ -12,6 +12,8 @@ suppressMessages({
     library(Matrix)
 })
 
+source("scripts/extras.R")
+
 apply_pb <- function(sce, pars, ds_only = TRUE) {
     t1 <- system.time({
         a <- pars$assay
